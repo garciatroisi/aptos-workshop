@@ -34,7 +34,14 @@ const CharacterCollection: React.FC<CharacterCollectionProps> = ({
   const characterTypes = [
     { value: 1, label: '👽 Alien', power: 85, defense: 70 },
     { value: 2, label: '👨‍🚀 Astronaut', power: 70, defense: 85 },
-    { value: 3, label: '🤖 Robot', power: 80, defense: 80 }
+    { value: 3, label: '🤖 Robot', power: 80, defense: 80 },
+    { value: 4, label: '🔧 Cyborg', power: 90, defense: 75 },
+    { value: 5, label: '🧬 Mutant', power: 95, defense: 60 },
+    { value: 6, label: '🤖 Android', power: 75, defense: 90 },
+    { value: 7, label: '🪖 Space Marine', power: 88, defense: 82 },
+    { value: 8, label: '🧠 Psionic', power: 92, defense: 68 },
+    { value: 9, label: '⚔️ Berserker', power: 100, defense: 50 },
+    { value: 10, label: '🔮 Technomancer', power: 78, defense: 88 }
   ];
 
   const handleMint = async () => {
@@ -67,6 +74,11 @@ const CharacterCollection: React.FC<CharacterCollectionProps> = ({
   const getCharacterTypeLabel = (type: number) => {
     const charType = characterTypes.find(t => t.value === type);
     return charType ? charType.label : 'Unknown';
+  };
+
+  const getCharacterEmoji = (type: number) => {
+    const charType = characterTypes.find(t => t.value === type);
+    return charType ? charType.label.split(' ')[0] : '❓';
   };
 
   return (

@@ -52,7 +52,14 @@ const BattleArena: React.FC<BattleArenaProps> = ({
     const types = {
       1: '👽 Alien',
       2: '👨‍🚀 Astronaut',
-      3: '🤖 Robot'
+      3: '🤖 Robot',
+      4: '🔧 Cyborg',
+      5: '🧬 Mutant',
+      6: '🤖 Android',
+      7: '🪖 Space Marine',
+      8: '🧠 Psionic',
+      9: '⚔️ Berserker',
+      10: '🔮 Technomancer'
     };
     return types[type as keyof typeof types] || 'Unknown';
   };

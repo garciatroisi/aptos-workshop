@@ -18,11 +18,19 @@ module galactic_wars::galactic_wars {
     const ECHARACTER_NOT_FOUND: u64 = 3;
     const EINVALID_BATTLE: u64 = 4;
     const ECOLLECTION_NOT_CREATED: u64 = 5;
+    const EINVALID_CHARACTER_TYPE: u64 = 6;
 
-    // Character types
+    // Character types - 10 unique characters
     const CHARACTER_ALIEN: u64 = 1;
     const CHARACTER_ASTRONAUT: u64 = 2;
     const CHARACTER_ROBOT: u64 = 3;
+    const CHARACTER_CYBORG: u64 = 4;
+    const CHARACTER_MUTANT: u64 = 5;
+    const CHARACTER_ANDROID: u64 = 6;
+    const CHARACTER_SPACE_MARINE: u64 = 7;
+    const CHARACTER_PSIONIC: u64 = 8;
+    const CHARACTER_BERSERKER: u64 = 9;
+    const CHARACTER_TECHNOMANCER: u64 = 10;
 
     // Battle constants
     const BATTLE_COST: u64 = 1000000; // 0.001 APT
@@ -112,6 +120,9 @@ module galactic_wars::galactic_wars {
         // Verify collection is created
         let galactic_wars = borrow_global<GalacticWars>(@galactic_wars);
         assert!(simple_map::contains_key(&galactic_wars.collection_created, &account_addr), ECOLLECTION_NOT_CREATED);
+        
+        // Validate character type
+        assert!(character_type >= CHARACTER_ALIEN && character_type <= CHARACTER_TECHNOMANCER, EINVALID_CHARACTER_TYPE);
         
         // Generate character attributes based on type
         let (power, defense) = get_character_attributes(character_type);
@@ -239,8 +250,22 @@ module galactic_wars::galactic_wars {
             (70, 85) // Medium power, high defense
         } else if (character_type == CHARACTER_ROBOT) {
             (80, 80) // Balanced
+        } else if (character_type == CHARACTER_CYBORG) {
+            (90, 75) // Very high power, good defense
+        } else if (character_type == CHARACTER_MUTANT) {
+            (95, 60) // Maximum power, low defense
+        } else if (character_type == CHARACTER_ANDROID) {
+            (75, 90) // Good power, very high defense
+        } else if (character_type == CHARACTER_SPACE_MARINE) {
+            (88, 82) // High power, high defense
+        } else if (character_type == CHARACTER_PSIONIC) {
+            (92, 68) // Very high power, medium defense
+        } else if (character_type == CHARACTER_BERSERKER) {
+            (100, 50) // Maximum power, minimum defense
+        } else if (character_type == CHARACTER_TECHNOMANCER) {
+            (78, 88) // Good power, very high defense
         } else {
-            (50, 50) // Default
+            (50, 50) // Default fallback
         }
     }
 
@@ -273,5 +298,31 @@ module galactic_wars::galactic_wars {
     public fun has_collection(owner: address): bool acquires GalacticWars {
         let galactic_wars = borrow_global<GalacticWars>(@galactic_wars);
         simple_map::contains_key(&galactic_wars.collection_created, &owner)
+    }
+
+    public fun get_character_type_name(character_type: u64): String {
+        if (character_type == CHARACTER_ALIEN) {
+            string::utf8(b"Alien")
+        } else if (character_type == CHARACTER_ASTRONAUT) {
+            string::utf8(b"Astronaut")
+        } else if (character_type == CHARACTER_ROBOT) {
+            string::utf8(b"Robot")
+        } else if (character_type == CHARACTER_CYBORG) {
+            string::utf8(b"Cyborg")
+        } else if (character_type == CHARACTER_MUTANT) {
+            string::utf8(b"Mutant")
+        } else if (character_type == CHARACTER_ANDROID) {
+            string::utf8(b"Android")
+        } else if (character_type == CHARACTER_SPACE_MARINE) {
+            string::utf8(b"Space Marine")
+        } else if (character_type == CHARACTER_PSIONIC) {
+            string::utf8(b"Psionic")
+        } else if (character_type == CHARACTER_BERSERKER) {
+            string::utf8(b"Berserker")
+        } else if (character_type == CHARACTER_TECHNOMANCER) {
+            string::utf8(b"Technomancer")
+        } else {
+            string::utf8(b"Unknown")
+        }
     }
 }

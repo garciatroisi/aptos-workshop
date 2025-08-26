@@ -17,11 +17,17 @@ aptos-workshop/
 ├── move/
 │   ├── sources/
 │   │   └── galactic_wars.move
-│   ├── Move.toml
-│   └── scripts/
-│       ├── deploy.sh
-│       ├── mint.sh
-│       └── battle.sh
+│   └── Move.toml
+├── scripts/
+│   ├── src/
+│   │   ├── deploy.ts
+│   │   ├── mint.ts
+│   │   ├── battle.ts
+│   │   ├── index.ts
+│   │   ├── types.ts
+│   │   └── utils.ts
+│   ├── package.json
+│   └── tsconfig.json
 ├── web/
 │   ├── src/
 │   ├── public/
@@ -52,13 +58,24 @@ cd aptos-workshop
 aptos init --profile galactic-wars --network testnet
 ```
 
-3. **Deploya el contrato Move**
+3. **Instala las dependencias de los scripts**
 ```bash
-cd move
-aptos move publish --named-addresses galactic_wars=default
+cd scripts
+npm install
+npm run build
 ```
 
-4. **Inicia la DApp web**
+4. **Deploya el contrato Move**
+```bash
+npm run deploy
+```
+
+5. **Mint personajes**
+```bash
+npm run mint -- --module-address <MODULE_ADDRESS>
+```
+
+6. **Inicia la DApp web**
 ```bash
 cd ../web
 npm install
@@ -73,10 +90,11 @@ Consulta [docs/workshop-guide.md](docs/workshop-guide.md) para instrucciones det
 
 ### Smart Contract (Move)
 - ✅ Crear colección de NFTs
-- ✅ Mina personajes con atributos únicos
+- ✅ Mina 10 tipos de personajes únicos
 - ✅ Sistema de batallas con factor aleatorio
 - ✅ Quema de NFTs perdedores
 - ✅ Estándar Token v2 de Aptos
+- ✅ Validación de tipos de personaje
 
 ### DApp Web (React)
 - ✅ Conexión de wallet
@@ -84,12 +102,14 @@ Consulta [docs/workshop-guide.md](docs/workshop-guide.md) para instrucciones det
 - ✅ Selección de oponentes
 - ✅ Inicio de batallas
 - ✅ Resultados en tiempo real
+- ✅ Soporte para 10 tipos de personajes
 
 ## 🛠️ Tecnologías
 
 - **Blockchain**: Aptos
 - **Smart Contracts**: Move
 - **Frontend**: React + TypeScript
+- **Scripts**: TypeScript + Commander.js
 - **Wallet**: Petra/Martian
 - **SDK**: Aptos TypeScript SDK
 
