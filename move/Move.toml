@@ -1,0 +1,13 @@
+[package]
+name = "galactic_wars"
+version = "1.0.0"
+authors = ["Galactic Wars Team"]
+upgrade_policy = "compatible"
+
+[addresses]
+galactic_wars = "_"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "main" }
+
+[dev-dependencies]
