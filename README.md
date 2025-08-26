@@ -58,7 +58,7 @@ cd aptos-workshop
 aptos init --profile galactic-wars --network testnet
 ```
 
-3. **Instala las dependencias de los scripts**
+3. **Instala y configura los scripts TypeScript**
 ```bash
 cd scripts
 npm install
@@ -85,6 +85,26 @@ npm start
 ## 📚 Guía del Taller
 
 Consulta [docs/workshop-guide.md](docs/workshop-guide.md) para instrucciones detalladas paso a paso.
+
+## 🛠️ Comandos Disponibles
+
+### Scripts TypeScript
+```bash
+cd scripts
+
+# Comandos principales
+npm run deploy                    # Deploy del contrato
+npm run mint                      # Mint personajes
+npm run battle                    # Iniciar batalla
+npm run characters                # Ver todos los personajes
+npm run setup                     # Guía completa de setup
+npm run help                      # Ayuda detallada
+
+# Ejemplos avanzados
+npm run mint -- --all             # Mint todos los personajes
+npm run mint -- --type 5          # Mint solo Mutant
+npm run battle -- --confirm       # Batalla sin confirmación
+```
 
 ## 🎯 Funcionalidades
 

@@ -55,8 +55,17 @@ aptos-workshop/
 ├── move/                    # Smart contracts en Move
 │   ├── sources/
 │   │   └── galactic_wars.move  # Contrato principal
-│   ├── Move.toml              # Configuración del proyecto
-│   └── scripts/               # Scripts de automatización
+│   └── Move.toml              # Configuración del proyecto
+├── scripts/                 # Scripts TypeScript
+│   ├── src/
+│   │   ├── deploy.ts         # Deploy del contrato
+│   │   ├── mint.ts           # Mint de personajes
+│   │   ├── battle.ts         # Inicio de batallas
+│   │   ├── index.ts          # CLI principal
+│   │   ├── types.ts          # Tipos TypeScript
+│   │   └── utils.ts          # Utilidades compartidas
+│   ├── package.json          # Dependencias
+│   └── tsconfig.json         # Configuración TypeScript
 ├── web/                     # DApp React
 │   ├── src/
 │   │   ├── components/       # Componentes React
@@ -71,7 +80,7 @@ aptos-workshop/
 ### Fase 1: Preparación (10 minutos)
 1. **Deploy del contrato** - Los participantes deployan el smart contract
 2. **Crear colección** - Cada jugador crea su colección de NFTs
-3. **Mintar personajes** - Se mintean 3 personajes únicos
+3. **Mintar personajes** - Se mintean hasta 10 personajes únicos
 
 ### Fase 2: Batallas (30 minutos)
 1. **Explorar la Arena** - Ver otros jugadores y sus personajes
@@ -89,9 +98,10 @@ aptos-workshop/
 ### Paso 1: Deploy del Smart Contract
 
 ```bash
-cd move
-chmod +x scripts/deploy.sh
-./scripts/deploy.sh
+cd scripts
+npm install
+npm run build
+npm run deploy
 ```
 
 **¿Qué está pasando?**
@@ -109,13 +119,13 @@ chmod +x scripts/deploy.sh
 
 ```bash
 # Reemplaza MODULE_ADDRESS con la dirección obtenida del deploy
-./scripts/mint.sh MODULE_ADDRESS
+npm run mint -- --module-address MODULE_ADDRESS
 ```
 
 **¿Qué está pasando?**
 - Se inicializa el módulo para la cuenta
 - Se crea una colección de NFTs
-- Se mintean 3 personajes con atributos únicos
+- Se mintean hasta 10 personajes con atributos únicos
 
 **Conceptos clave:**
 - `token::create_collection` - Crea una colección de tokens
@@ -140,8 +150,7 @@ npm start
 ### Paso 4: Iniciar Batallas
 
 ```bash
-cd ../move
-./scripts/battle.sh MODULE_ADDRESS OPPONENT_ADDRESS YOUR_CHAR_INDEX OPPONENT_CHAR_INDEX
+npm run battle -- --module-address MODULE_ADDRESS --opponent OPPONENT_ADDRESS --challenger-index YOUR_CHAR_INDEX --opponent-index OPPONENT_CHAR_INDEX
 ```
 
 **¿Qué está pasando?**
