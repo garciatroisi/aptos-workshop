@@ -162,6 +162,26 @@ const BuyPack: React.FC = () => {
             )}
           </button>
           
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
+          
+          <a
+            href={`https://cloud.hasura.io/public/graphiql?endpoint=${encodeURIComponent('https://api.testnet.aptoslabs.com/v1/graphql')}&query=${encodeURIComponent(`query MyQuery {
+  current_token_datas_v2(
+    where: {collection_id: {_eq: "${process.env.NEXT_PUBLIC_PACKS_COLLECTION_ADDRESS}"}}
+  ) {
+    token_properties
+    token_name
+    token_data_id
+  }
+}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+          >
+            <Package size={20} />
+            Check Packs Information
+          </a>
+          
           {message && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
