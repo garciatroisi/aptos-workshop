@@ -1,0 +1,13 @@
+[package]
+name = "GalacticPacks"
+version = "1.0.0"
+upgrade_policy = "compatible"
+
+[addresses]
+aptos_token_objects = "0x4"
+galactic_workshop = "0x8cea3b8e4c4e510012c42409c076df85ebb6ac6dac15f6e694b3774cc91770f8"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "mainnet" }
+AptosTokenObjects = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-token-objects", rev = "mainnet" }
+
