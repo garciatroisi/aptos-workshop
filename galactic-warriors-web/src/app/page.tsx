@@ -17,7 +17,7 @@ export default function HomePage() {
   const tabs: Tab[] = [
     { id: 'about', label: 'About', icon: Home },
     { id: 'buy', label: 'Buy Pack', icon: Package },
-            { id: 'redeem', label: 'Open Pack', icon: Gift },
+    { id: 'open', label: 'Open Pack', icon: Gift },
     { id: 'gallery', label: 'Gallery', icon: Image },
   ];
 
@@ -27,7 +27,7 @@ export default function HomePage() {
         return <About />;
       case 'buy':
         return <BuyPack />;
-      case 'redeem':
+      case 'open':
         return <OpenPack />;
       case 'gallery':
         return <Gallery />;

@@ -108,7 +108,7 @@ Welcome to the **Galactic Sticker Packs** workshop! This is a complete project t
 
 - **`init_module()`**: Initializes the game by creating NFT collections and minting packs
 - **`buy_pack()`**: Allows buying a pack for 0.1 APT
-- **`redeem_pack()`**: Opens a pack and generates 3 random NFTs with balanced rarity
+- **`open_pack()`**: Opens a pack and generates 3 random NFTs with balanced rarity
 - **Rarity system**: tier rarity system with weighted probabilities
 - **Supply limit**: Maximum 100 packs available
 

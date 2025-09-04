@@ -5,7 +5,7 @@ export const CONTRACT_CONFIG = {
   
   FUNCTIONS: {
     BUY_PACK: 'buy_pack',
-    REDEEM_PACK: 'open_pack',
+    OPEN_PACK: 'open_pack',
     GET_TOTAL_SOLD: 'get_total_sold',
     GET_PACK_TOKEN_ID: 'get_pack_token_id',
   },
