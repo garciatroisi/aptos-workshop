@@ -57,7 +57,7 @@ const Footer: React.FC = () => {
             >
               GitHub
             </a>
-            <span>© 2024 Galactic Warriors Packs</span>
+            <span>© 2025 Galactic Warriors Packs</span>
           </div>
         </div>
       </div>

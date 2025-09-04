@@ -1,22 +1,22 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWalletContext } from '../contexts/WalletContext';
 import { Sparkles, AlertCircle, CheckCircle, Package, Eye, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getUserCollectionPacks, prepareOpenPackTransaction, Pack } from '../actions/aptosActions';
 import { AccountAuthenticator, Deserializer, MultiAgentTransaction } from '@aptos-labs/ts-sdk';
 
-const RedeemPack: React.FC = () => {
+const OpenPack: React.FC = () => {
   const { account, connected, signTransaction, client } = useWalletContext();
   const [userPacks, setUserPacks] = useState<Pack[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingPacks, setLoadingPacks] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [showRedeemAnimation, setShowRedeemAnimation] = useState(false);
+  const [showOpenAnimation, setShowOpenAnimation] = useState(false);
   const [openingPackId, setOpeningPackId] = useState<string | null>(null);
 
-  const loadUserPacks = async () => {
+  const loadUserPacks = useCallback(async () => {
     if (!connected || !account) return;
     
     setLoadingPacks(true);
@@ -33,11 +33,11 @@ const RedeemPack: React.FC = () => {
     } finally {
       setLoadingPacks(false);
     }
-  };
+  }, [connected, account]);
 
   useEffect(() => {
     loadUserPacks();
-  }, [connected, account]);
+  }, [connected, account, loadUserPacks]);
 
   const handleOpenSinglePack = async (packId: string) => {
     if (!connected || !account) {
@@ -76,7 +76,7 @@ const RedeemPack: React.FC = () => {
         additionalSignersAuthenticators: [creatorAuth],
       });
 
-      const executedTransaction = await client.waitForTransaction({
+      await client.waitForTransaction({
         transactionHash: committedTransaction.hash,
       });
 
@@ -84,8 +84,8 @@ const RedeemPack: React.FC = () => {
         pack.tokenId === packId ? { ...pack, isOpened: true } : pack
       ));
       
-      setShowRedeemAnimation(true);
-      setTimeout(() => setShowRedeemAnimation(false), 3000);
+      setShowOpenAnimation(true);
+      setTimeout(() => setShowOpenAnimation(false), 3000);
       
       setMessage({ type: 'success', text: 'Pack opened successfully! Check your new NFT.' });
       
@@ -101,24 +101,7 @@ const RedeemPack: React.FC = () => {
     }
   };
 
-  const getPackTypeIcon = (pack: Pack): React.ReactElement => {
-    return (
-      <img 
-        src="/pack.png" 
-        alt="Pack" 
-        className="w-8 h-8 object-contain"
-      />
-    );
-  };
 
-  const getPackTypeColor = (pack: Pack) => {
-    const name = pack.tokenName.toLowerCase();
-    if (name.includes('galactic')) return 'from-blue-500 to-purple-600';
-    if (name.includes('alien')) return 'from-green-500 to-teal-600';
-    if (name.includes('predator')) return 'from-red-500 to-orange-600';
-    if (name.includes('yoda')) return 'from-yellow-500 to-green-600';
-    return 'from-gray-500 to-gray-600';
-  };
 
   if (!connected) {
     return (
@@ -169,7 +152,7 @@ const RedeemPack: React.FC = () => {
           
 
           
-          {showRedeemAnimation && (
+          {showOpenAnimation && (
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -264,12 +247,12 @@ const RedeemPack: React.FC = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {unopenedPacks.map((pack, index) => (
+            {unopenedPacks.map((pack) => (
               <motion.div
                 key={pack.tokenId}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
+                transition={{ delay: 0.1 }}
                 className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-600/50 hover:border-gray-500 hover:scale-105 transition-all duration-300 cursor-pointer group"
               >
                 <div className="absolute top-10 right-10 z-10">
@@ -330,12 +313,12 @@ const RedeemPack: React.FC = () => {
           </h3>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {openedPacks.map((pack, index) => (
+            {openedPacks.map((pack) => (
               <motion.div
                 key={pack.tokenId}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
+                transition={{ delay: 0.1 }}
                 className="relative bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-600/30 opacity-80 hover:opacity-100 transition-all duration-300 group"
               >
                 <div className="absolute top-3 right-3 z-10">
@@ -371,4 +354,4 @@ const RedeemPack: React.FC = () => {
   );
 };
 
-export default RedeemPack;
+export default OpenPack;

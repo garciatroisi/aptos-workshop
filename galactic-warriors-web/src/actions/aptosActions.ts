@@ -1,6 +1,6 @@
 'use server'
 
-import { Aptos, AptosConfig, Network, Ed25519PrivateKey, Account, AccountAuthenticator } from '@aptos-labs/ts-sdk';
+import { Aptos, AptosConfig, Network, Ed25519PrivateKey, Account } from '@aptos-labs/ts-sdk';
 import { CONTRACT_CONFIG } from '../config/contract';
 import { envConfig } from '../config/env';
 
@@ -34,7 +34,7 @@ if (creatorPrivateKey) {
 }
 
 export interface TransactionPayload {
-  transactionBytes: any;
+  transactionBytes: number[];
   creatorAuthBytes: number[];
 }
 
@@ -42,7 +42,7 @@ export interface Pack {
   tokenId: string;
   tokenName: string;
   tokenUri: string | undefined;
-  digitalAssetData: any | null;
+  digitalAssetData: unknown | null;
   error?: string;
   isOpened: boolean;
   rarity: string;
@@ -124,10 +124,10 @@ export async function getUserCollectionPacks(
   collectionAddress: string = envConfig.collections.packs
 ): Promise<Pack[]> {
   try {
-    let allUserTokens: any[] = [];
+    let allUserTokens: unknown[] = [];
     let offset = 0;
     const limit = 100;
-    let userTokensBatch: any[] = [];
+    let userTokensBatch: unknown[] = [];
 
     do {
       userTokensBatch = await aptos.getAccountOwnedTokensFromCollectionAddress({
@@ -146,15 +146,16 @@ export async function getUserCollectionPacks(
     // Get detailed information for each token and convert to Pack format
     const userPacks = await Promise.all(
       allUserTokens.map(async (token) => {
+        const tokenData = token as { token_data_id: string; current_token_data?: { token_name?: string; token_uri?: string } };
         try {
           // Get complete digital asset data
           const digitalAssetData = await aptos.getDigitalAssetData({
-            digitalAssetAddress: token.token_data_id,
+            digitalAssetAddress: tokenData.token_data_id,
           });
 
-          // Determine if this is a pack collection (has Pack Number and Claimed properties)
+          // Determine if this is a pack collection (has Pack Number and Opened properties)
           const isPackCollection = digitalAssetData.token_properties && 
-            (digitalAssetData.token_properties["Pack Number"] || digitalAssetData.token_properties.Claimed);
+            (digitalAssetData.token_properties["Pack Number"] || digitalAssetData.token_properties.Opened);
           
           let isOpened = false;
           let rarity = "Unknown";
@@ -162,11 +163,11 @@ export async function getUserCollectionPacks(
           let serialNumber = "Unknown";
           
           if (isPackCollection) {
-            // PACK COLLECTION: Extract Pack Number and Claimed status
-            if (digitalAssetData.token_properties.Claimed) {
-              isOpened = digitalAssetData.token_properties.Claimed === "true" || 
-                        digitalAssetData.token_properties.Claimed === true ||
-                        digitalAssetData.token_properties.Claimed === "1";
+            // PACK COLLECTION: Extract Pack Number and Opened status
+            if (digitalAssetData.token_properties.Opened) {
+              isOpened = digitalAssetData.token_properties.Opened === "true" || 
+                        digitalAssetData.token_properties.Opened === true ||
+                        digitalAssetData.token_properties.Opened === "1";
             }
             
             if (digitalAssetData.token_properties["Pack Number"]) {
@@ -187,9 +188,9 @@ export async function getUserCollectionPacks(
           const price = 0.1; // TODO: Get actual price from token properties or contract
 
           return {
-            tokenId: token.token_data_id,
-            tokenName: token.current_token_data?.token_name || "Unknown Pack",
-            tokenUri: token.current_token_data?.token_uri || undefined,
+            tokenId: tokenData.token_data_id,
+            tokenName: tokenData.current_token_data?.token_name || "Unknown Pack",
+            tokenUri: tokenData.current_token_data?.token_uri || undefined,
             digitalAssetData: {
               ...digitalAssetData,
               // Additional computed properties for easier access
@@ -211,13 +212,13 @@ export async function getUserCollectionPacks(
           };
         } catch (error) {
           console.error(
-            `Error getting data for pack ${token.token_data_id}:`,
+            `Error getting data for pack ${tokenData.token_data_id}:`,
             error
           );
           return {
-            tokenId: token.token_data_id,
-            tokenName: token.current_token_data?.token_name || "Unknown Pack",
-            tokenUri: token.current_token_data?.token_uri || undefined,
+            tokenId: tokenData.token_data_id,
+            tokenName: tokenData.current_token_data?.token_name || "Unknown Pack",
+            tokenUri: tokenData.current_token_data?.token_uri || undefined,
             digitalAssetData: null,
             error: error instanceof Error ? error.message : "Unknown error",
             isOpened: false, // Default to unopened if there's an error
@@ -277,7 +278,7 @@ export async function prepareOpenPackTransaction(
       sender: userAddress,  
       secondarySignerAddresses: [creatorAccount.accountAddress], 
       data: {
-        function: `${CONTRACT_CONFIG.MODULE_ADDRESS}::${CONTRACT_CONFIG.MODULE_NAME}::redeem_pack`,
+        function: `${CONTRACT_CONFIG.MODULE_ADDRESS}::${CONTRACT_CONFIG.MODULE_NAME}::open_pack`,
         typeArguments: [],
         functionArguments: [packTokenId],
       },
@@ -303,24 +304,4 @@ export async function prepareOpenPackTransaction(
   }
 }
 
-/**
- * Buys a pack using the buy_pack function from the Move contract
- * For now it's a mock implementation until the SDK types are resolved
- */
-export async function buyPack(
-  userAddress: string,
-  packType: string
-): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
-  try {
-    return {
-      success: true,
-      transactionHash: `mock_buy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    };
-  } catch (error) {
-    console.error('Error buying pack:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    };
-  }
-}
+

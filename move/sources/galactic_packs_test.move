@@ -101,18 +101,18 @@ module galactic_workshop::galactic_packs_test {
         // We'll use the pack store to get the token ID since we know it was transferred to the user
         let pack_token_id = galactic_packs::get_pack_token_id(creator_addr, 0);
         
-        // Redeem the pack
-        galactic_packs::test_redeem_pack(user, creator, pack_token_id);
+        // Open the pack
+        galactic_packs::test_open_pack(user, creator, pack_token_id);
         
-        // Verify that the pack is now claimed
+        // Verify that the pack is now opened
         let pack_object = object::address_to_object<object::ObjectCore>(pack_token_id);
-        let claimed_property = property_map::read_bool(&pack_object, &string::utf8(b"Claimed"));
-        assert!(claimed_property, 19);
+        let opened_property = property_map::read_bool(&pack_object, &string::utf8(b"Opened"));
+        assert!(opened_property, 19);
         
-        // Verify that the pack was successfully redeemed
-        // The redeem function should have minted PACK_SIZE tokens (3 tokens) to the user
-        // and marked the pack as claimed
-        assert!(claimed_property, 20);
+        // Verify that the pack was successfully opened
+        // The open function should have minted PACK_SIZE tokens (3 tokens) to the user
+        // and marked the pack as opened
+        assert!(opened_property, 20);
     }
 
     #[test(
@@ -120,8 +120,8 @@ module galactic_workshop::galactic_packs_test {
         user = @0x456,
         creator = @0x123
     )]
-    #[expected_failure(abort_code = galactic_packs::E_PACK_ALREADY_CLAIMED)]
-    fun test_redeem_already_claimed_pack(fx: &signer, user: &signer, creator: &signer) {        
+    #[expected_failure(abort_code = galactic_packs::E_PACK_ALREADY_OPENED)]
+    fun test_open_already_opened_pack(fx: &signer, user: &signer, creator: &signer) {        
         // Initialize everything
         setup_test(fx, user, creator);
         
@@ -132,10 +132,10 @@ module galactic_workshop::galactic_packs_test {
         let creator_addr = signer::address_of(creator);
         let pack_token_id = galactic_packs::get_pack_token_id(creator_addr, 0);
         
-        // Redeem the pack for the first time (should succeed)
-        galactic_packs::test_redeem_pack(user, creator, pack_token_id);
+        // Open the pack for the first time (should succeed)
+        galactic_packs::test_open_pack(user, creator, pack_token_id);
         
-        // Try to redeem the same pack again (should fail with E_PACK_ALREADY_CLAIMED)
-        galactic_packs::test_redeem_pack(user, creator, pack_token_id);
+        // Try to open the same pack again (should fail with E_PACK_ALREADY_OPENED)
+        galactic_packs::test_open_pack(user, creator, pack_token_id);
     }
 }

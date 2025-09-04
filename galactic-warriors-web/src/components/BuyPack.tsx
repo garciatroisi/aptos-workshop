@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWalletContext } from '../contexts/WalletContext';
 import { Package, Coins, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -9,7 +9,7 @@ import { prepareBuyPackTransaction, getTotalPacksSold } from '../actions/aptosAc
 import { AccountAuthenticator, Deserializer, MultiAgentTransaction } from '@aptos-labs/ts-sdk';
 
 const BuyPack: React.FC = () => {
-  const { account, connected, signAndSubmitTransaction, signTransaction, client } = useWalletContext();
+  const { account, connected, signTransaction, client } = useWalletContext();
   const [gameStats, setGameStats] = useState<GameStats>({
     total_packs_sold: 0,
     user_pack_count: 0,
@@ -17,7 +17,7 @@ const BuyPack: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const loadGameStats = async () => {
+  const loadGameStats = useCallback(async () => {
     if (!connected || !account) return;
     
     try {
@@ -29,11 +29,11 @@ const BuyPack: React.FC = () => {
     } catch (error) {
       console.error('Error loading game stats:', error);
     }
-  };
+  }, [connected, account]);
 
   useEffect(() => {
     loadGameStats();
-  }, [connected, account]);
+  }, [connected, account, loadGameStats]);
 
   const handleBuyPack = async () => { 
     
@@ -227,7 +227,7 @@ const BuyPack: React.FC = () => {
             { name: 'Epic', color: 'purple', emoji: '🟣', chance: 12 },
             { name: 'Legendary', color: 'orange', emoji: '🟠', chance: 8 },
             { name: 'Mythic', color: 'red', emoji: '🔴', chance: 5 }
-          ].map((rarity, index) => (
+          ].map((rarity) => (
             <div key={rarity.name} className="group cursor-pointer">
               <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-${rarity.color}-500 via-${rarity.color}-400 to-${rarity.color}-300 p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-${rarity.color}-500/25`}>
                 <div className={`absolute inset-0 bg-gradient-to-br from-${rarity.color}-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>

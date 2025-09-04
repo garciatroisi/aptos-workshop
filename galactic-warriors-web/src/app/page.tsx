@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import Navigation from '@/components/Navigation';
 import About from '@/components/About';
 import BuyPack from '@/components/BuyPack';
-import RedeemPack from '@/components/RedeemPack';
+import OpenPack from '@/components/OpenPack';
 import Gallery from '@/components/Gallery';
 import Footer from '@/components/Footer';
 import { Home, Package, Gift, Image } from 'lucide-react';
@@ -17,7 +17,7 @@ export default function HomePage() {
   const tabs: Tab[] = [
     { id: 'about', label: 'About', icon: Home },
     { id: 'buy', label: 'Buy Pack', icon: Package },
-    { id: 'redeem', label: 'Redeem Pack', icon: Gift },
+            { id: 'redeem', label: 'Open Pack', icon: Gift },
     { id: 'gallery', label: 'Gallery', icon: Image },
   ];
 
@@ -28,7 +28,7 @@ export default function HomePage() {
       case 'buy':
         return <BuyPack />;
       case 'redeem':
-        return <RedeemPack />;
+        return <OpenPack />;
       case 'gallery':
         return <Gallery />;
       default:

@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWalletContext } from '../contexts/WalletContext';
-import { Image, Filter, Search, Star, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react';
+import { Image, Filter, Search, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getUserGalleryAssets, Pack } from '../actions/aptosActions';
 
@@ -21,7 +21,7 @@ const Gallery: React.FC = () => {
   const [sortBy, setSortBy] = useState<'collection' | 'rarity'>('collection');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const loadGalleryAssets = async () => {
+  const loadGalleryAssets = useCallback(async () => {
     if (!connected || !account) return;
     
     setLoadingAssets(true);
@@ -48,7 +48,7 @@ const Gallery: React.FC = () => {
       setLoadingAssets(false);
       setLoading(false);
     }
-  };
+  }, [connected, account]);
 
   useEffect(() => {
     if (connected && account) {
@@ -56,7 +56,7 @@ const Gallery: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [connected, account]);
+  }, [connected, account, loadGalleryAssets]);
 
   useEffect(() => {
     let filtered: Pack[] = [];
@@ -141,52 +141,7 @@ const Gallery: React.FC = () => {
     }
   };
 
-  const getRarityStyle = (rarity: string) => {
-    switch (rarity.toLowerCase()) {
-      case 'common':
-        return {
-          bgColor: 'bg-gradient-to-r from-gray-500/90 to-gray-600/90',
-          textColor: 'text-white',
-          borderColor: 'border border-gray-400/50'
-        };
-      case 'uncommon':
-        return {
-          bgColor: 'bg-gradient-to-r from-green-500/90 to-emerald-600/90',
-          textColor: 'text-white',
-          borderColor: 'border border-green-400/50'
-        };
-      case 'rare':
-        return {
-          bgColor: 'bg-gradient-to-r from-blue-500/90 to-indigo-600/90',
-          textColor: 'text-white',
-          borderColor: 'border border-blue-400/50'
-        };
-      case 'epic':
-        return {
-          bgColor: 'bg-gradient-to-r from-purple-500/90 to-violet-600/90',
-          textColor: 'text-white',
-          borderColor: 'border border-purple-400/50'
-        };
-      case 'legendary':
-        return {
-          bgColor: 'bg-gradient-to-r from-orange-500/90 to-amber-600/90',
-          textColor: 'text-white',
-          borderColor: 'border border-orange-400/50'
-        };
-      case 'mythic':
-        return {
-          bgColor: 'bg-gradient-to-r from-red-500/90 to-rose-600/90',
-          textColor: 'text-white',
-          borderColor: 'border border-red-400/50'
-        };
-      default:
-        return {
-          bgColor: 'bg-gradient-to-r from-gray-400/90 to-gray-500/90',
-          textColor: 'text-white',
-          borderColor: 'border border-gray-300/50'
-        };
-    }
-  };
+
 
   const getRarityBadge = (rarity: string) => {
     const color = getRarityColor(rarity);
@@ -343,12 +298,12 @@ const Gallery: React.FC = () => {
       )}
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredNFTs.map((asset, index) => (
+        {filteredNFTs.map((asset) => (
           <motion.div
             key={asset.tokenId}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 * index }}
+            transition={{ delay: 0.05 }}
             className="galactic-card p-4 hover:scale-105 transition-transform duration-300 cursor-pointer group"
           >
             <div className="w-full h-94 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg mb-4 flex items-center justify-center overflow-hidden relative">

@@ -11,7 +11,7 @@ module galactic_workshop::galactic_packs {
 
     // Error codes
     const E_NOT_AUTHORIZED: u64 = 1;
-    const E_PACK_ALREADY_CLAIMED: u64 = 2;
+    const E_PACK_ALREADY_OPENED: u64 = 2;
     const E_NO_PACKS_AVAILABLE: u64 = 3;
 
     // Constants
@@ -162,8 +162,8 @@ module galactic_workshop::galactic_packs {
             vector::push_back(&mut property_types, string::utf8(b"u64"));
             vector::push_back(&mut property_values, bcs::to_bytes(&i));
 
-            // Add claimed property as false initially
-            vector::push_back(&mut property_keys, string::utf8(b"Claimed"));
+            // Add opened property as false initially
+            vector::push_back(&mut property_keys, string::utf8(b"Opened"));
             vector::push_back(&mut property_types, string::utf8(b"bool"));
             vector::push_back(&mut property_values, bcs::to_bytes(&false));
 
@@ -213,18 +213,18 @@ module galactic_workshop::galactic_packs {
         object::transfer(creator, pack_object, user_addr);
     }   
 
-    // redeem a pack
+    // open a pack
     #[randomness]
-    entry fun redeem_pack(
+    entry fun open_pack(
         user: &signer,
         creator: &signer,
         pack_token_id: address
     ) {
-        redeem_pack_internal(user, creator, pack_token_id);
+        open_pack_internal(user, creator, pack_token_id);
     }
 
-    // Internal function for redeeming a pack
-    fun redeem_pack_internal(
+    // Internal function for opening a pack
+    fun open_pack_internal(
         user: &signer,
         creator: &signer,
         pack_token_id: address
@@ -239,16 +239,16 @@ module galactic_workshop::galactic_packs {
         // Get the pack data
         let pack_object = object::address_to_object<object::ObjectCore>(pack_token_id);
         
-        // Check if the pack is already claimed
-        let claimed_property = property_map::read_bool(&pack_object, &string::utf8(b"Claimed"));
-        assert!(!claimed_property, E_PACK_ALREADY_CLAIMED);
+        // Check if the pack is already opened
+        let opened_property = property_map::read_bool(&pack_object, &string::utf8(b"Opened"));
+        assert!(!opened_property, E_PACK_ALREADY_OPENED);
         
-        // Update claimed property to true
+        // Update opened property to true
         // https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-token-objects/doc/aptos_token.md#0x4_aptos_token_update_property
         aptos_token::update_property(
             creator,
             pack_object,
-            string::utf8(b"Claimed"),
+            string::utf8(b"Opened"),
             string::utf8(b"bool"),
             bcs::to_bytes(&true),
         );
@@ -302,15 +302,15 @@ module galactic_workshop::galactic_packs {
 
     // ===== TEST FUNCTIONS =====
 
-    // Test-only function for redeeming packs (easier to use in tests)
+    // Test-only function for opening packs (easier to use in tests)
     #[test_only]
     #[lint::allow_unsafe_randomness]
-    public fun test_redeem_pack(
+    public fun test_open_pack(
         user: &signer,
         creator: &signer,
         pack_token_id: address
     ) {
-        redeem_pack_internal(user, creator, pack_token_id);
+        open_pack_internal(user, creator, pack_token_id);
     }
 
     // Public function for testing initialization
