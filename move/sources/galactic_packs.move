@@ -13,6 +13,7 @@ module galactic_workshop::galactic_packs {
     const E_NOT_AUTHORIZED: u64 = 1;
     const E_PACK_ALREADY_OPENED: u64 = 2;
     const E_NO_PACKS_AVAILABLE: u64 = 3;
+    const E_PACKSTORE_NOT_INITIALIZED: u64 = 4;
 
     // Constants
     const PACK_PRICE: u64 = 10000000; // 0.1 APT in octas
@@ -53,6 +54,12 @@ module galactic_workshop::galactic_packs {
         total_sold: u64,
     }
     
+    // ManagerInfo: Stores the extend ref and manager address for creating collections and packs
+    struct ManagerInfo has key {
+        extend_ref: object::ExtendRef,
+        manager_addr: address,
+    }
+    
     // ===== INITIALIZATION =====
     // Initializes the Galactic Packs module
     // 
@@ -63,10 +70,25 @@ module galactic_workshop::galactic_packs {
     // Parameters:
     // - creator: &signer - The account that deploys this module
     fun init_module(creator: &signer) acquires PackStore {
- // Create collections for each type using a loop
-        create_collections(creator);
+        // Create an object for managing collections and packs
+        let creator_address = signer::address_of(creator);
+        let constructor_ref = object::create_object(creator_address);
+        let extend_ref = object::generate_extend_ref(&constructor_ref);
+
+        // Get the manager address from the constructor ref 
+        let manager_signer = object::generate_signer_for_extending(&extend_ref);
+        let manager_addr = signer::address_of(&manager_signer);
+         
+        // Create collections for each type using a loop
+        create_collections(&manager_signer);
         // Mint galactic pack
-        mint_pack(creator);
+        mint_pack(&manager_signer);
+
+        // Store the extend ref and manager address for later use
+        move_to(creator, ManagerInfo {
+            extend_ref,
+            manager_addr,
+        });
     }
 
    // ===== FUNCTIONS =====
@@ -183,57 +205,34 @@ module galactic_workshop::galactic_packs {
         };
     }
 
-    // View function to get total packs sold by a creator
-    // 
-    // Parameters:
-    // - creator_addr: address - The address of the pack creator
-    // 
-    // Returns: u64 - Total number of packs sold (0 if creator has no PackStore)
-    // 
-    // This function is marked as #[view] for easy querying from the frontend
+    
     #[view]
-    public fun get_total_sold(creator_addr: address): u64 acquires PackStore {
-        if (exists<PackStore>(creator_addr)) {
-            // borrow_global returns an immutable reference (&PackStore)
-            // Accessing a primitive field (u64) automatically copies the value
-            borrow_global<PackStore>(creator_addr).total_sold
-        } else {
-            0
-        }
+    public fun get_total_sold(): u64 acquires PackStore, ManagerInfo {
+        //obtener el extend ref
+        let manager_info = borrow_global<ManagerInfo>(@galactic_workshop);
+        let manager_addr = manager_info.manager_addr;
+        borrow_global<PackStore>(manager_addr).total_sold
     }
 
-    // View function to get pack token ID by index from a creator's collection
-    // 
-    // Parameters:
-    // - creator_addr: address - The address of the pack creator
-    // - index: u64 - Index of the pack in the creator's collection (0-based)
-    // 
-    // Returns: address - The token ID address of the pack, or @0x0 if creator has no PackStore
-    // 
-    // This function is marked as #[view] for easy querying from the frontend
     #[view]
-    public fun get_pack_token_id(creator_addr: address, index: u64): address acquires PackStore {
-        if (exists<PackStore>(creator_addr)) {
-            let pack_store = borrow_global<PackStore>(creator_addr);
-            // vector::borrow returns &address, so we need dereference (*) to get the value
-            *vector::borrow(&pack_store.packs, index)
-        } else {
-            @0x0
-        }
+    public fun get_pack_token_id(index: u64): address acquires PackStore, ManagerInfo {
+        let manager_info = borrow_global<ManagerInfo>(@galactic_workshop);
+        let manager_addr = manager_info.manager_addr;
+        let pack_store = borrow_global<PackStore>(manager_addr);
+        *vector::borrow(&pack_store.packs, index)
     }
 
     // Allows a user to purchase a galactic pack from the creator
     // 
     // Parameters:
     // - user: &signer - The account buying the pack
-    // - creator: &signer - The account selling the pack (must sign for transfer)
     // 
     // Returns: None
     // 
     // This function:
     // - Checks if packs are available for purchase
     // - Transfers PACK_PRICE (0.1 APT) from user to creator
-    // - Transfers the pack NFT from creator to user
+    // - Transfers the pack NFT from creator to user using manager_object
     // - Increments total_sold counter
     // 
     // Aborts if:
@@ -243,20 +242,18 @@ module galactic_workshop::galactic_packs {
     // - Transfer fails
     public entry fun buy_pack(
         user: &signer, 
-        creator: &signer, 
-    ) acquires PackStore {
+    ) acquires PackStore, ManagerInfo {
         let user_addr = signer::address_of(user);
-        let creator_addr = signer::address_of(creator);
         
-        // Check if there are packs available
-        assert!(exists<PackStore>(creator_addr), E_NOT_AUTHORIZED);
-        let pack_store = borrow_global_mut<PackStore>(creator_addr);
+        let manager_info = borrow_global<ManagerInfo>(@galactic_workshop);
+        let manager_addr = manager_info.manager_addr;
+        let pack_store = borrow_global_mut<PackStore>(manager_addr);
         assert!(pack_store.total_sold < MAX_PACKS, E_NO_PACKS_AVAILABLE); 
-
+    
         // Transfer payment from user to creator
         // https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-token-objects/doc/property_map.md#0x4_property_map
         let user_coin = coin::withdraw<aptos_framework::aptos_coin::AptosCoin>(user, PACK_PRICE);
-        coin::deposit(creator_addr, user_coin);
+        coin::deposit(manager_addr, user_coin);
 
         // Get the pack using total_sold as index
         let pack_token_id = vector::borrow(&pack_store.packs, pack_store.total_sold); 
@@ -265,16 +262,16 @@ module galactic_workshop::galactic_packs {
         // Increment total sold
         pack_store.total_sold = pack_store.total_sold + 1;
 
-        // Transfer the pack object from the creator to the user.
-        // This requires the creator to sign the transaction.
-        object::transfer(creator, pack_object, user_addr);
+        // generate signer from extend ref
+        let manager_signer = object::generate_signer_for_extending(&manager_info.extend_ref);
+        // Transfer the pack object from the creator to the user using manager_signer
+        object::transfer(&manager_signer, pack_object, user_addr);
     }
 
     // Allows a user to open a galactic pack and receive random NFTs
     // 
     // Parameters:
     // - user: &signer - The account opening the pack (must own the pack)
-    // - creator: &signer - The pack creator (must sign for property updates)
     // - pack_token_id: address - The address of the pack NFT to open
     // 
     // Returns: None
@@ -282,7 +279,7 @@ module galactic_workshop::galactic_packs {
     // This function:
     // - Verifies the user owns the pack
     // - Checks if the pack is already opened
-    // - Marks the pack as opened
+    // - Marks the pack as opened using manager_object
     // - Mints PACK_SIZE (3) random NFTs and transfers them to the user
     // 
     // Aborts if:
@@ -295,17 +292,15 @@ module galactic_workshop::galactic_packs {
     #[randomness]
     entry fun open_pack(
         user: &signer,
-        creator: &signer,
         pack_token_id: address
-    ) {
-        open_pack_internal(user, creator, pack_token_id);
+    ) acquires ManagerInfo {
+        open_pack_internal(user, pack_token_id);
     }
 
     // Internal function that handles the pack opening logic
     // 
     // Parameters:
     // - user: &signer - The account opening the pack
-    // - creator: &signer - The pack creator
     // - pack_token_id: address - The address of the pack NFT to open
     // 
     // Returns: None
@@ -313,7 +308,7 @@ module galactic_workshop::galactic_packs {
     // This function:
     // - Validates pack ownership
     // - Checks if pack is already opened
-    // - Updates pack "Opened" property to true
+    // - Updates pack "Opened" property to true using manager_object
     // - Triggers NFT minting and transfer
     // 
     // Aborts if:
@@ -322,9 +317,8 @@ module galactic_workshop::galactic_packs {
     // - Property update fails
     fun open_pack_internal(
         user: &signer,
-        creator: &signer,
         pack_token_id: address
-    ) {
+    ) acquires ManagerInfo {
         let user_addr = signer::address_of(user);
     
         let pack_object = object::address_to_object<object::ObjectCore>(pack_token_id);
@@ -336,10 +330,14 @@ module galactic_workshop::galactic_packs {
         let opened_property = property_map::read_bool(&pack_object, &string::utf8(b"Opened"));
         assert!(!opened_property, E_PACK_ALREADY_OPENED);
         
-        // Update opened property to true
+        // Get the extend ref and generate signer
+        let manager_info = borrow_global<ManagerInfo>(@galactic_workshop);
+        let manager_signer = object::generate_signer_for_extending(&manager_info.extend_ref);
+        
+        // Update opened property to true using manager_signer
         // https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-token-objects/doc/aptos_token.md#0x4_aptos_token_update_property
         aptos_token::update_property(
-            creator,
+            &manager_signer,
             pack_object,
             string::utf8(b"Opened"),
             string::utf8(b"bool"),
@@ -347,13 +345,13 @@ module galactic_workshop::galactic_packs {
         );
         
         // Mint PACK_SIZE tokens of different types and transfer to user
-        mint_and_transfer_tokens(creator, user_addr);
+        mint_and_transfer_tokens(&manager_signer, user_addr);
     }
     
     // Mints PACK_SIZE (3) random NFTs and transfers them to the user
     // 
     // Parameters:
-    // - creator: &signer - The account minting the NFTs
+    // - manager_signer: &signer - The manager signer for minting the NFTs
     // - user_addr: address - The address receiving the NFTs
     // 
     // This function:
@@ -365,7 +363,7 @@ module galactic_workshop::galactic_packs {
     // - NFT minting fails
     // - Transfer fails
     // - Randomness service unavailable
-    inline fun mint_and_transfer_tokens(creator: &signer, user_addr: address) {
+    inline fun mint_and_transfer_tokens(manager_signer: &signer, user_addr: address) {
         let i = 0;
         while (i < PACK_SIZE) {
             // Set collection type based on iteration, starting from 1 (0 is Galactic Pack)
@@ -389,7 +387,7 @@ module galactic_workshop::galactic_packs {
             
             // Mint the token
             let token_id = aptos_token::mint_token_object(
-                creator,
+                manager_signer,
                 collection_name,
                 string::utf8(b"An epic warrior from the depths of space"),
                 collection_name,
@@ -400,7 +398,7 @@ module galactic_workshop::galactic_packs {
             );
             
             // Transfer the token to the user
-            object::transfer(creator, token_id, user_addr);
+            object::transfer(manager_signer, token_id, user_addr);
             
             i = i + 1;
         };
@@ -457,19 +455,33 @@ module galactic_workshop::galactic_packs {
     #[lint::allow_unsafe_randomness]
     public fun test_open_pack(
         user: &signer,
-        creator: &signer,
         pack_token_id: address
-    ) {
-        open_pack_internal(user, creator, pack_token_id);
+    ) acquires ManagerInfo {
+        open_pack_internal(user, pack_token_id);
     }
 
     // Public function for testing initialization
     #[test_only]
     public fun initialize_for_testing(creator: &signer) acquires PackStore {
+        // Create an object for managing collections and packs
+        let creator_address = signer::address_of(creator);
+        let constructor_ref = object::create_object(creator_address);
+        let extend_ref = object::generate_extend_ref(&constructor_ref);
+        
+        // Get the manager address from the constructor ref
+        let manager_signer = object::generate_signer_for_extending(&extend_ref);
+        let manager_addr = signer::address_of(&manager_signer);
+        
+        // Store the extend ref and manager address for later use
+        move_to(creator, ManagerInfo {
+            extend_ref,
+            manager_addr,
+        });
+        
         // Create collections for each type using a loop
-        create_collections(creator);
+        create_collections(&manager_signer);
         // Mint galactic pack
-        mint_pack(creator);
+        mint_pack(&manager_signer);
     }
 
 }

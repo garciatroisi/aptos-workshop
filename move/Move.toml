@@ -4,8 +4,9 @@ version = "1.0.0"
 upgrade_policy = "compatible"
 
 [addresses]
+galactic_workshop = "0x123"
 aptos_token_objects = "0x4"
-galactic_workshop = "5ff31326760d84e471ff8da1bcfb0eacd1d75b982267ff7040986909dc10f3d4"
+open_marketplace = "0xb6a97feb04418b78a16706c9f8465d16174865741df572928552348340dc33a4"
 
 [dependencies]
 AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "mainnet" }

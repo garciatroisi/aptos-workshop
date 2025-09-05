@@ -56,11 +56,10 @@ module galactic_workshop::galactic_packs_test {
         setup_test(fx, user, creator);
         
         // Buy a pack
-        galactic_packs::buy_pack(user, creator);
+        galactic_packs::buy_pack(user);
         
         // Verify that a pack was sold 
-        let creator_addr = signer::address_of(creator);
-        let total_sold = galactic_packs::get_total_sold(creator_addr);
+        let total_sold = galactic_packs::get_total_sold();
         assert!(total_sold == 1, 17);
     }
 
@@ -74,20 +73,19 @@ module galactic_workshop::galactic_packs_test {
         setup_test(fx, user, creator);
         
         // Buy a pack
-        galactic_packs::buy_pack(user, creator);
+        galactic_packs::buy_pack(user);
         
         // Verify that a pack was sold 
-        let creator_addr = signer::address_of(creator);
-        let total_sold = galactic_packs::get_total_sold(creator_addr);
+        let total_sold = galactic_packs::get_total_sold();
         assert!(total_sold == 1, 18);   
         
         // Get the first token owned by the user in the "Galactic Pack" collection
         // Since we know the user just bought one pack, it should be the first one
         // We'll use the pack store to get the token ID since we know it was transferred to the user
-        let pack_token_id = galactic_packs::get_pack_token_id(creator_addr, 0);
+        let pack_token_id = galactic_packs::get_pack_token_id(0);
         
         // Open the pack
-        galactic_packs::test_open_pack(user, creator, pack_token_id);
+        galactic_packs::test_open_pack(user, pack_token_id);
         
         // Verify that the pack is now opened
         let pack_object = object::address_to_object<object::ObjectCore>(pack_token_id);
@@ -111,16 +109,15 @@ module galactic_workshop::galactic_packs_test {
         setup_test(fx, user, creator);
         
         // Buy a pack
-        galactic_packs::buy_pack(user, creator);
+        galactic_packs::buy_pack(user);
         
         // Get the pack token ID
-        let creator_addr = signer::address_of(creator);
-        let pack_token_id = galactic_packs::get_pack_token_id(creator_addr, 0);
+        let pack_token_id = galactic_packs::get_pack_token_id(0);
         
         // Open the pack for the first time (should succeed)
-        galactic_packs::test_open_pack(user, creator, pack_token_id);
+        galactic_packs::test_open_pack(user, pack_token_id);
         
         // Try to open the same pack again (should fail with E_PACK_ALREADY_OPENED)
-        galactic_packs::test_open_pack(user, creator, pack_token_id);
+        galactic_packs::test_open_pack(user, pack_token_id);
     }
 }
