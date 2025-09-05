@@ -465,7 +465,7 @@ module galactic_workshop::galactic_packs {
     public fun initialize_for_testing(creator: &signer) acquires PackStore {
         // Create an object for managing collections and packs
         let creator_address = signer::address_of(creator);
-        let constructor_ref = object::create_object(creator_address);
+        let constructor_ref = object::create_sticky_object(creator_address);
         let extend_ref = object::generate_extend_ref(&constructor_ref);
         
         // Get the manager address from the constructor ref
