@@ -156,7 +156,7 @@ module galactic_workshop::galactic_packs {
 
         // https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-token-objects/sources/aptos_token.move
         // Create collection using aptos_token_objects
-        aptos_token::create_collection(
+        let collection_object = aptos_token::create_collection_object(
             creator,
             description,
             max_supply,
@@ -166,9 +166,6 @@ module galactic_workshop::galactic_packs {
             5, 100 // 5% royalty
         );
         
-        // Get the collection object using our helper function
-        let collection_object = get_collection_object(creator, &collection_name);
-        
         // Create royalty with payment recipient
         let royalty = royalty::create(
             5, // numerator (5%)
@@ -177,18 +174,11 @@ module galactic_workshop::galactic_packs {
         );
         
         // Set the payment recipient as the royalty recipient
-        aptos_token::set_collection_royalties(
+        aptos_token::set_collection_royalties<aptos_token::AptosCollection>(
             creator,
             collection_object,
             royalty,
         );
-    }
- 
-    // Helper function to get collection object
-    // This function replicates the logic from aptos_token::collection_object
-    inline fun get_collection_object(creator: &signer, name: &String): Object<aptos_token::AptosCollection> {
-        let collection_addr = collection::create_collection_address(&signer::address_of(creator), name);
-        object::address_to_object<aptos_token::AptosCollection>(collection_addr)
     }
 
     // Retrieves collection information by collection type index
