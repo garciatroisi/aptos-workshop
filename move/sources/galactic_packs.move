@@ -54,10 +54,11 @@ module galactic_workshop::galactic_packs {
         total_sold: u64,
     }
     
-    // ManagerInfo: Stores the extend ref and manager address for creating collections and packs
+    // ManagerInfo: Stores the extend ref, manager address, and payment recipient for creating collections and packst,
     struct ManagerInfo has key {
         extend_ref: object::ExtendRef,
         manager_addr: address,
+        payment_recipient: address,
     }
     
     // ===== INITIALIZATION =====
@@ -84,14 +85,43 @@ module galactic_workshop::galactic_packs {
         // Mint galactic pack
         mint_pack(&manager_signer);
 
-        // Store the extend ref and manager address for later use
+        // Get the payment recipient (owner of the object that initializes the contract)
+        let payment_recipient = get_payment_recipient();
+        
+        // Store the extend ref, manager address, and payment recipient for later use
         move_to(creator, ManagerInfo {
             extend_ref,
             manager_addr,
+            payment_recipient,
         });
     }
 
-   // ===== FUNCTIONS =====
+       // ===== FUNCTIONS =====
+    
+    // Helper function to get the payment recipient address
+    // Returns the owner of the object that initializes the contract
+    fun get_payment_recipient(): address {
+        let contract_object = object::address_to_object<object::ObjectCore>(@galactic_workshop);
+        object::owner(contract_object)
+    }
+
+    // Function to set a new payment recipient
+    // Only the owner of the contract object can call this function
+    public entry fun set_payment_recipient(
+        caller: &signer,
+        new_recipient: address
+    ) acquires ManagerInfo {
+        // Verify that the caller is the owner of the contract object
+        let contract_object = object::address_to_object<object::ObjectCore>(@galactic_workshop);
+        let contract_owner = object::owner(contract_object);
+        let caller_addr = signer::address_of(caller);
+        assert!(contract_owner == caller_addr, E_NOT_AUTHORIZED);
+        
+        // Update the payment recipient in ManagerInfo
+        let manager_info = borrow_global_mut<ManagerInfo>(@galactic_workshop);
+        manager_info.payment_recipient = new_recipient;
+    }
+    
     // Creates all NFT collections by iterating through the collection types
     // 
     // Parameters:
@@ -247,13 +277,14 @@ module galactic_workshop::galactic_packs {
         
         let manager_info = borrow_global<ManagerInfo>(@galactic_workshop);
         let manager_addr = manager_info.manager_addr;
+        let payment_recipient = manager_info.payment_recipient;
         let pack_store = borrow_global_mut<PackStore>(manager_addr);
         assert!(pack_store.total_sold < MAX_PACKS, E_NO_PACKS_AVAILABLE); 
     
-        // Transfer payment from user to creator
+        // Transfer payment from user to payment recipient (creator)
         // https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-token-objects/doc/property_map.md#0x4_property_map
         let user_coin = coin::withdraw<aptos_framework::aptos_coin::AptosCoin>(user, PACK_PRICE);
-        coin::deposit(manager_addr, user_coin);
+        coin::deposit(payment_recipient, user_coin);
 
         // Get the pack using total_sold as index
         let pack_token_id = vector::borrow(&pack_store.packs, pack_store.total_sold); 
@@ -472,10 +503,11 @@ module galactic_workshop::galactic_packs {
         let manager_signer = object::generate_signer_for_extending(&extend_ref);
         let manager_addr = signer::address_of(&manager_signer);
         
-        // Store the extend ref and manager address for later use
+        // Store the extend ref, manager address, and payment recipient for later use
         move_to(creator, ManagerInfo {
             extend_ref,
             manager_addr,
+            payment_recipient: creator_address,
         });
         
         // Create collections for each type using a loop
