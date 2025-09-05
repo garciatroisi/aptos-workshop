@@ -7,7 +7,9 @@ module galactic_workshop::galactic_packs {
     use aptos_framework::coin;
     use aptos_framework::object;
     use aptos_token_objects::aptos_token;
+    use aptos_token_objects::collection;
     use aptos_token_objects::property_map;
+    use aptos_token_objects::royalty;
 
     // Error codes
     const E_NOT_AUTHORIZED: u64 = 1;
@@ -70,7 +72,7 @@ module galactic_workshop::galactic_packs {
     // 
     // Parameters:
     // - creator: &signer - The account that deploys this module
-    fun init_module(creator: &signer) acquires PackStore {
+    fun init_module(creator: &signer) acquires PackStore, ManagerInfo {
         // Create an object for managing collections and packs
         let creator_address = signer::address_of(creator);
         let constructor_ref = object::create_sticky_object(creator_address);
@@ -126,7 +128,7 @@ module galactic_workshop::galactic_packs {
     // 
     // Parameters:
     // - creator: &signer - The account creating all collections
-    inline fun create_collections(creator: &signer) {
+    inline fun create_collections(creator: &signer) acquires ManagerInfo {
         let i = 0;
         let total_collections = vector::length(&COLLECTION_NAMES);
         while (i < total_collections) {
@@ -140,13 +142,17 @@ module galactic_workshop::galactic_packs {
     // Parameters:
     // - creator: &signer - The account creating the collection
     // - collection_type: u64 - Index of the collection (0=Galactic Pack, 1=Alien, 2=Predator, 3=Yoda)
-    inline fun create_collection(creator: &signer, collection_type: u64) {
+    inline fun create_collection(creator: &signer, collection_type: u64) acquires ManagerInfo {
         // Get collection-specific name and URI from get_collection_info
         let (collection_name, image_uri) = get_collection_info(collection_type);
         
         let description = string::utf8(b"Collection of Galactic Characters");
         
         let max_supply = MAX_PACKS;
+
+        // Get the payment recipient for royalties
+        let manager_info = borrow_global<ManagerInfo>(@galactic_workshop);
+        let payment_recipient = manager_info.payment_recipient;
 
         // https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-token-objects/sources/aptos_token.move
         // Create collection using aptos_token_objects
@@ -159,8 +165,32 @@ module galactic_workshop::galactic_packs {
             true, true, true, true, true, true, true, false, false,
             5, 100 // 5% royalty
         );
+        
+        // Get the collection object using our helper function
+        let collection_object = get_collection_object(creator, &collection_name);
+        
+        // Create royalty with payment recipient
+        let royalty = royalty::create(
+            5, // numerator (5%)
+            100, // denominator (100%)
+            payment_recipient,
+        );
+        
+        // Set the payment recipient as the royalty recipient
+        aptos_token::set_collection_royalties(
+            creator,
+            collection_object,
+            royalty,
+        );
     }
  
+    // Helper function to get collection object
+    // This function replicates the logic from aptos_token::collection_object
+    inline fun get_collection_object(creator: &signer, name: &String): Object<aptos_token::AptosCollection> {
+        let collection_addr = collection::create_collection_address(&signer::address_of(creator), name);
+        object::address_to_object<aptos_token::AptosCollection>(collection_addr)
+    }
+
     // Retrieves collection information by collection type index
     // 
     // Parameters:
@@ -493,7 +523,7 @@ module galactic_workshop::galactic_packs {
 
     // Public function for testing initialization
     #[test_only]
-    public fun initialize_for_testing(creator: &signer) acquires PackStore {
+    public fun initialize_for_testing(creator: &signer) acquires PackStore, ManagerInfo {
         // Create an object for managing collections and packs
         let creator_address = signer::address_of(creator);
         let constructor_ref = object::create_sticky_object(creator_address);
