@@ -57,16 +57,13 @@ The key features are:
 -  [Function `get_pack_supply`](#ufc_strike_packs_get_pack_supply)
 -  [Function `get_pack_max_purchase`](#ufc_strike_packs_get_pack_max_purchase)
 -  [Function `get_pack_max_preorder`](#ufc_strike_packs_get_pack_max_preorder)
--  [Function `get_pack_moments_per_pack`](#ufc_strike_packs_get_pack_moments_per_pack)
+-  [Function `get_pack_moments`](#ufc_strike_packs_get_pack_moments)
+-  [Function `get_pack_total`](#ufc_strike_packs_get_pack_total)
+-  [Function `get_pack_reserved`](#ufc_strike_packs_get_pack_reserved)
 -  [Function `get_pack_released`](#ufc_strike_packs_get_pack_released)
--  [Function `get_pack_total_preorders`](#ufc_strike_packs_get_pack_total_preorders)
--  [Function `get_pack_reserved_packs`](#ufc_strike_packs_get_pack_reserved_packs)
--  [Function `get_pack_preorder_enabled`](#ufc_strike_packs_get_pack_preorder_enabled)
--  [Function `get_preorder_count`](#ufc_strike_packs_get_preorder_count)
--  [Function `get_total_preorder_amount`](#ufc_strike_packs_get_total_preorder_amount)
--  [Function `get_preorder_by_address`](#ufc_strike_packs_get_preorder_by_address)
+-  [Function `get_pack_preorder_count`](#ufc_strike_packs_get_pack_preorder_count)
+-  [Function `get_pack_preorder_by_address`](#ufc_strike_packs_get_pack_preorder_by_address)
 -  [Function `is_preorder_enabled`](#ufc_strike_packs_is_preorder_enabled)
--  [Function `get_total_preorders_count`](#ufc_strike_packs_get_total_preorders_count)
 -  [Function `get_slots_count`](#ufc_strike_packs_get_slots_count)
 -  [Function `get_slot_collections_names`](#ufc_strike_packs_get_slot_collections_names)
 -  [Function `get_slot_collection_quantity_by_name`](#ufc_strike_packs_get_slot_collection_quantity_by_name)
@@ -1128,13 +1125,37 @@ Get pack max preorder.
 ): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_pack_moments_per_pack"></a>
+<a id="ufc_strike_packs_get_pack_moments"></a>
 
-## Function `get_pack_moments_per_pack`
+## Function `get_pack_moments`
 
 Get pack moments per pack.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_moments_per_pack">get_pack_moments_per_pack</a>(
+<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_moments">get_pack_moments</a>(
+    _creator_addr: <b>address</b>,
+    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
+): u64
+</code></pre>
+
+<a id="ufc_strike_packs_get_pack_total"></a>
+
+## Function `get_pack_total`
+
+Get pack total preorders.
+
+<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_total">get_pack_total</a>(
+    _creator_addr: <b>address</b>,
+    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
+): u64
+</code></pre>
+
+<a id="ufc_strike_packs_get_pack_reserved"></a>
+
+## Function `get_pack_reserved`
+
+Get pack reserved packs.
+
+<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_reserved">get_pack_reserved</a>(
     _creator_addr: <b>address</b>,
     pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
 ): u64
@@ -1152,41 +1173,6 @@ Get pack released status.
 ): bool
 </code></pre>
 
-<a id="ufc_strike_packs_get_pack_total_preorders"></a>
-
-## Function `get_pack_total_preorders`
-
-Get pack total preorders.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_total_preorders">get_pack_total_preorders</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_reserved_packs"></a>
-
-## Function `get_pack_reserved_packs`
-
-Get pack reserved packs.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_reserved_packs">get_pack_reserved_packs</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_preorder_enabled"></a>
-
-## Function `get_pack_preorder_enabled`
-
-Get pack preorder enabled status.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_preorder_enabled">get_pack_preorder_enabled</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): bool
-</code></pre>
 
 <a id="ufc_strike_packs_get_preorder_count"></a>
 
@@ -1200,17 +1186,6 @@ Get total pre-orders for a pack (number of unique users with pre-orders).
 ): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_total_preorder_amount"></a>
-
-## Function `get_total_preorder_amount`
-
-Get total pre-order amount for a pack (sum of all pre-order amounts).
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_total_preorder_amount">get_total_preorder_amount</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
 
 <a id="ufc_strike_packs_get_preorder_by_address"></a>
 
@@ -1237,17 +1212,6 @@ Check if preorders are enabled.
 ): bool
 </code></pre>
 
-<a id="ufc_strike_packs_get_total_preorders_count"></a>
-
-## Function `get_total_preorders_count`
-
-Get total preorders count (including minted and remaining).
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_total_preorders_count">get_total_preorders_count</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
 
 <a id="ufc_strike_packs_get_slots_count"></a>
 
