@@ -1,1326 +1,1245 @@
-<a id="ufc_strike_packs"></a>
 
-# Module `ufc_strike::packs`
+<a id="0x123_packs"></a>
 
-This module provides a comprehensive pack system for UFC Strike, allowing creators to create, manage, and distribute NFT packs with customizable distribution mechanics.
+# Module `0x123::packs`
 
-The key features are:
-* Pack creation and configuration with customizable parameters
-* Pre-order system for early access to packs
-* Pack opening mechanics with random moment distribution
-* Inventory management for available packs
-* Distribution system for moments within packs
-* Creator-controlled pack release and sales
-* Admin management system
-* Batch operations for efficiency
+UFC Strike Packs Module
 
--  [Resource `Pack`](#ufc_strike_packs_Pack)
--  [Resource `PackStore`](#ufc_strike_packs_PackStore)
--  [Resource `AdminTable`](#ufc_strike_packs_AdminTable)
--  [Resource `PreOrder`](#ufc_strike_packs_PreOrder)
--  [Resource `PackInfo`](#ufc_strike_packs_PackInfo)
--  [Events](#@Events_0)
+This module provides functionality for creating, managing, and opening NFT packs.
+It supports pre-orders, pack distribution, moment minting, and pack opening mechanics.
+The module includes admin controls, pack configuration, and distribution management.
+
+
+-  [Struct `PreOrder`](#0x123_packs_PreOrder)
+-  [Struct `PackInfo`](#0x123_packs_PackInfo)
+-  [Resource `Pack`](#0x123_packs_Pack)
+-  [Resource `AdminTable`](#0x123_packs_AdminTable)
+-  [Resource `PackStore`](#0x123_packs_PackStore)
+-  [Struct `MomentDrawnEvent`](#0x123_packs_MomentDrawnEvent)
+-  [Struct `PacksRemovedFromSaleEvent`](#0x123_packs_PacksRemovedFromSaleEvent)
 -  [Constants](#@Constants_0)
--  [Function `init_module`](#ufc_strike_packs_init_module)
--  [Function `add_admin`](#ufc_strike_packs_add_admin)
--  [Function `remove_admin`](#ufc_strike_packs_remove_admin)
--  [Function `create_pack`](#ufc_strike_packs_create_pack)
--  [Function `add_collections_to_distribution`](#ufc_strike_packs_add_collections_to_distribution)
--  [Function `add_serial_numbers`](#ufc_strike_packs_add_serial_numbers)
--  [Function `add_serial_numbers_with_range`](#ufc_strike_packs_add_serial_numbers_with_range)
--  [Function `mint_packs_batch`](#ufc_strike_packs_mint_packs_batch)
--  [Function `set_max_purchase`](#ufc_strike_packs_set_max_purchase)
--  [Function `set_max_preorder`](#ufc_strike_packs_set_max_preorder)
--  [Function `set_pack_price`](#ufc_strike_packs_set_pack_price)
--  [Function `set_reserved_packs`](#ufc_strike_packs_set_reserved_packs)
--  [Function `pre_order`](#ufc_strike_packs_pre_order)
--  [Function `assign_pre_order`](#ufc_strike_packs_assign_pre_order)
--  [Function `set_preorder_enabled`](#ufc_strike_packs_set_preorder_enabled)
--  [Function `preorder_release_batch`](#ufc_strike_packs_preorder_release_batch)
--  [Function `release_pack`](#ufc_strike_packs_release_pack)
--  [Function `remove_pack_from_sale_by_address`](#ufc_strike_packs_remove_pack_from_sale_by_address)
--  [Function `remove_packs_from_sale_by_quantity`](#ufc_strike_packs_remove_packs_from_sale_by_quantity)
--  [Function `remove_serial_numbers_global`](#ufc_strike_packs_remove_serial_numbers_global)
--  [Function `remove_serial_numbers_reserved`](#ufc_strike_packs_remove_serial_numbers_reserved)
--  [Function `purchase`](#ufc_strike_packs_purchase)
--  [Function `assign_purchase`](#ufc_strike_packs_assign_purchase)
--  [Function `open`](#ufc_strike_packs_open)
--  [Function `is_address_admin`](#ufc_strike_packs_is_address_admin)
--  [Function `is_address_owner`](#ufc_strike_packs_is_address_owner)
--  [Function `get_owner`](#ufc_strike_packs_get_owner)
--  [Function `get_packs_for_sale_available`](#ufc_strike_packs_get_packs_for_sale_available)
--  [Function `get_remaining_packs_to_mint`](#ufc_strike_packs_get_remaining_packs_to_mint)
--  [Function `get_pack_info`](#ufc_strike_packs_get_pack_info)
--  [Function `get_pack_description`](#ufc_strike_packs_get_pack_description)
--  [Function `get_pack_uri`](#ufc_strike_packs_get_pack_uri)
--  [Function `get_pack_price`](#ufc_strike_packs_get_pack_price)
--  [Function `get_pack_supply`](#ufc_strike_packs_get_pack_supply)
--  [Function `get_pack_max_purchase`](#ufc_strike_packs_get_pack_max_purchase)
--  [Function `get_pack_max_preorder`](#ufc_strike_packs_get_pack_max_preorder)
--  [Function `get_pack_moments`](#ufc_strike_packs_get_pack_moments)
--  [Function `get_pack_total`](#ufc_strike_packs_get_pack_total)
--  [Function `get_pack_reserved`](#ufc_strike_packs_get_pack_reserved)
--  [Function `get_pack_released`](#ufc_strike_packs_get_pack_released)
--  [Function `get_pack_preorder_count`](#ufc_strike_packs_get_pack_preorder_count)
--  [Function `get_pack_preorder_by_address`](#ufc_strike_packs_get_pack_preorder_by_address)
--  [Function `is_preorder_enabled`](#ufc_strike_packs_is_preorder_enabled)
--  [Function `get_slots_count`](#ufc_strike_packs_get_slots_count)
--  [Function `get_slot_collections_names`](#ufc_strike_packs_get_slot_collections_names)
--  [Function `get_slot_collection_quantity_by_name`](#ufc_strike_packs_get_slot_collection_quantity_by_name)
--  [Function `get_slot_moments_count`](#ufc_strike_packs_get_slot_moments_count)
--  [Function `get_total_moments_count`](#ufc_strike_packs_get_total_moments_count)
--  [Function `get_collection_serial_numbers`](#ufc_strike_packs_get_collection_serial_numbers)
--  [Function `get_collection_serial_numbers_count`](#ufc_strike_packs_get_collection_serial_numbers_count)
--  [Function `get_event_collection_name`](#ufc_strike_packs_get_event_collection_name)
--  [Function `get_event_serial_number`](#ufc_strike_packs_get_event_serial_number)
+-  [Function `add_admin`](#0x123_packs_add_admin)
+    -  [Arguments](#@Arguments_1)
+-  [Function `remove_admin`](#0x123_packs_remove_admin)
+    -  [Arguments](#@Arguments_2)
+-  [Function `create_pack`](#0x123_packs_create_pack)
+    -  [Arguments](#@Arguments_3)
+-  [Function `add_collections_to_distribution`](#0x123_packs_add_collections_to_distribution)
+    -  [Arguments](#@Arguments_4)
+-  [Function `add_serial_numbers`](#0x123_packs_add_serial_numbers)
+-  [Function `add_serial_numbers_with_range`](#0x123_packs_add_serial_numbers_with_range)
+-  [Function `mint_packs_batch`](#0x123_packs_mint_packs_batch)
+-  [Function `set_max_purchase`](#0x123_packs_set_max_purchase)
+-  [Function `set_max_preorder`](#0x123_packs_set_max_preorder)
+-  [Function `set_pack_price`](#0x123_packs_set_pack_price)
+-  [Function `set_reserved_packs`](#0x123_packs_set_reserved_packs)
+-  [Function `pre_order`](#0x123_packs_pre_order)
+    -  [Arguments](#@Arguments_5)
+-  [Function `assign_pre_order`](#0x123_packs_assign_pre_order)
+-  [Function `set_preorder_enabled`](#0x123_packs_set_preorder_enabled)
+-  [Function `preorder_release_batch`](#0x123_packs_preorder_release_batch)
+-  [Function `release_pack`](#0x123_packs_release_pack)
+-  [Function `remove_pack_from_sale_by_address`](#0x123_packs_remove_pack_from_sale_by_address)
+-  [Function `remove_packs_from_sale_by_quantity`](#0x123_packs_remove_packs_from_sale_by_quantity)
+-  [Function `remove_serial_numbers_global`](#0x123_packs_remove_serial_numbers_global)
+-  [Function `remove_serial_numbers_reserved`](#0x123_packs_remove_serial_numbers_reserved)
+-  [Function `purchase`](#0x123_packs_purchase)
+    -  [Arguments](#@Arguments_6)
+-  [Function `assign_purchase`](#0x123_packs_assign_purchase)
+-  [Function `open`](#0x123_packs_open)
+    -  [Arguments](#@Arguments_7)
+-  [Function `is_address_admin`](#0x123_packs_is_address_admin)
+    -  [Arguments](#@Arguments_8)
+    -  [Returns](#@Returns_9)
+-  [Function `is_address_owner`](#0x123_packs_is_address_owner)
+    -  [Arguments](#@Arguments_10)
+    -  [Returns](#@Returns_11)
+-  [Function `get_owner`](#0x123_packs_get_owner)
+    -  [Returns](#@Returns_12)
+-  [Function `get_packs_for_sale_available`](#0x123_packs_get_packs_for_sale_available)
+-  [Function `get_remaining_packs_to_mint`](#0x123_packs_get_remaining_packs_to_mint)
+-  [Function `get_pack_info`](#0x123_packs_get_pack_info)
+-  [Function `get_pack_released`](#0x123_packs_get_pack_released)
+-  [Function `get_pack_description`](#0x123_packs_get_pack_description)
+-  [Function `get_pack_uri`](#0x123_packs_get_pack_uri)
+-  [Function `get_pack_price`](#0x123_packs_get_pack_price)
+-  [Function `get_pack_supply`](#0x123_packs_get_pack_supply)
+-  [Function `get_pack_max_purchase`](#0x123_packs_get_pack_max_purchase)
+-  [Function `get_pack_max_preorder`](#0x123_packs_get_pack_max_preorder)
+-  [Function `get_pack_moments`](#0x123_packs_get_pack_moments)
+-  [Function `get_pack_total`](#0x123_packs_get_pack_total)
+-  [Function `get_pack_reserved`](#0x123_packs_get_pack_reserved)
+-  [Function `is_preorder_enabled`](#0x123_packs_is_preorder_enabled)
+-  [Function `get_pack_preorder_count`](#0x123_packs_get_pack_preorder_count)
+-  [Function `get_pack_preorder_by_address`](#0x123_packs_get_pack_preorder_by_address)
+-  [Function `get_slots_count`](#0x123_packs_get_slots_count)
+-  [Function `get_slot_collections_names`](#0x123_packs_get_slot_collections_names)
+-  [Function `get_slot_collection_quantity_by_name`](#0x123_packs_get_slot_collection_quantity_by_name)
+-  [Function `get_slot_moments_count`](#0x123_packs_get_slot_moments_count)
+-  [Function `get_total_moments_count`](#0x123_packs_get_total_moments_count)
+-  [Function `get_collection_serial_numbers`](#0x123_packs_get_collection_serial_numbers)
+-  [Function `get_collection_serial_numbers_count`](#0x123_packs_get_collection_serial_numbers_count)
+-  [Function `is_pack_reserved`](#0x123_packs_is_pack_reserved)
 
-<pre><code><b>use</b> <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">0x1::signer</a>;
-<b>use</b> <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string">0x1::string</a>;
-<b>use</b> <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">0x1::vector</a>;
-<b>use</b> <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/bcs.md#0x1_bcs">0x1::bcs</a>;
-<b>use</b> <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/table.md#0x1_table">0x1::table</a>;
-<b>use</b> <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/big_ordered_map.md#0x1_big_ordered_map">0x1::big_ordered_map</a>;
-<b>use</b> <a href="../../aptos-framework/doc/coin.md#0x1_coin">0x1::coin</a>;
-<b>use</b> <a href="../../aptos-framework/doc/object.md#0x1_object">0x1::object</a>;
-<b>use</b> <a href="../../aptos-framework/doc/randomness.md#0x1_randomness">0x1::randomness</a>;
-<b>use</b> <a href="../../aptos-token-objects/doc/aptos_token.md#0x4_aptos_token">0x4::aptos_token</a>;
-<b>use</b> <a href="../../aptos-token-objects/doc/collection.md#0x4_collection">0x4::collection</a>;
-<b>use</b> <a href="../../aptos-token-objects/doc/property_map.md#0x4_property_map">0x4::property_map</a>;
-<b>use</b> <a href="pack_distribution.md#ufc_strike_pack_distribution">ufc_strike::pack_distribution</a>;
+
+<pre><code><b>use</b> <a href="pack_distribution.md#0x123_pack_distribution">0x123::pack_distribution</a>;
+<b>use</b> <a href="">0x1::aptos_coin</a>;
+<b>use</b> <a href="">0x1::bcs</a>;
+<b>use</b> <a href="">0x1::big_ordered_map</a>;
+<b>use</b> <a href="">0x1::coin</a>;
+<b>use</b> <a href="">0x1::event</a>;
+<b>use</b> <a href="">0x1::object</a>;
+<b>use</b> <a href="">0x1::ordered_map</a>;
+<b>use</b> <a href="">0x1::randomness</a>;
+<b>use</b> <a href="">0x1::signer</a>;
+<b>use</b> <a href="">0x1::smart_vector</a>;
+<b>use</b> <a href="">0x1::string</a>;
+<b>use</b> <a href="">0x1::table</a>;
+<b>use</b> <a href="">0x1::table_with_length</a>;
+<b>use</b> <a href="">0x1::vector</a>;
+<b>use</b> <a href="">0x4::aptos_token</a>;
+<b>use</b> <a href="">0x4::collection</a>;
+<b>use</b> <a href="">0x4::property_map</a>;
 </code></pre>
 
 
 
-<a id="ufc_strike_packs_Pack"></a>
+<a id="0x123_packs_PreOrder"></a>
+
+## Struct `PreOrder`
+
+Pre-order information for tracking user pre-orders
+
+
+<pre><code><b>struct</b> <a href="packs.md#0x123_packs_PreOrder">PreOrder</a> <b>has</b> <b>copy</b>, drop, store
+</code></pre>
+
+
+
+<a id="0x123_packs_PackInfo"></a>
+
+## Struct `PackInfo`
+
+Pack information structure for view functions
+
+
+<pre><code><b>struct</b> <a href="packs.md#0x123_packs_PackInfo">PackInfo</a> <b>has</b> <b>copy</b>, drop
+</code></pre>
+
+
+
+<a id="0x123_packs_Pack"></a>
 
 ## Resource `Pack`
 
-Storage state for managing individual pack configurations and state.
+Pack configuration and state
 
-<pre><code><b>struct</b> <a href="packs.md#ufc_strike_packs_Pack">Pack</a> <b>has</b> key, store
+
+<pre><code><b>struct</b> <a href="packs.md#0x123_packs_Pack">Pack</a> <b>has</b> store, key
 </code></pre>
 
-<details>
-<summary>Fields</summary>
 
-<dl>
-<dt>
-<code>description: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a></code>
-</dt>
-<dd>
- Description of the pack
-</dd>
-<dt>
-<code>uri: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a></code>
-</dt>
-<dd>
- URI for pack metadata
-</dd>
-<dt>
-<code>reserved_distribution: <a href="pack_distribution.md#ufc_strike_pack_distribution_PackDistribution">pack_distribution::PackDistribution</a></code>
-</dt>
-<dd>
- Reserved distribution for reserved packs
-</dd>
-<dt>
-<code>distribution: <a href="pack_distribution.md#ufc_strike_pack_distribution_PackDistribution">pack_distribution::PackDistribution</a></code>
-</dt>
-<dd>
- Optimized distribution object for moments
-</dd>
-<dt>
-<code>price: u64</code>
-</dt>
-<dd>
- Price in octas (smallest unit of APT)
-</dd>
-<dt>
-<code>supply: u64</code>
-</dt>
-<dd>
- Total supply of packs
-</dd>
-<dt>
-<code>max_purchase: u64</code>
-</dt>
-<dd>
- Maximum packs a user can purchase in one transaction
-</dd>
-<dt>
-<code>max_preorder: u64</code>
-</dt>
-<dd>
- Maximum packs a user can pre-order
-</dd>
-<dt>
-<code>moments_per_pack: u64</code>
-</dt>
-<dd>
- Number of moments each pack contains
-</dd>
-<dt>
-<code>pre_orders: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/big_ordered_map.md#0x1_big_ordered_map_BigOrderedMap">big_ordered_map::BigOrderedMap</a>&lt;<b>address</b>, u64&gt;</code>
-</dt>
-<dd>
- Map of user addresses to their pre-order amounts
-</dd>
-<dt>
-<code>total_preorders: u64</code>
-</dt>
-<dd>
- Total amount of pre-orders across all users
-</dd>
-<dt>
-<code>reserved_packs: u64</code>
-</dt>
-<dd>
- Packs reserved for creator (not available for sale)
-</dd>
-<dt>
-<code>released: bool</code>
-</dt>
-<dd>
- Whether the pack has been released (also indicates if sales are open)
-</dd>
-<dt>
-<code>preorder_enabled: bool</code>
-</dt>
-<dd>
- Whether preorders are currently enabled
-</dd>
-<dt>
-<code>packs_for_sale: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/smart_vector.md#0x1_smart_vector_SmartVector">smart_vector::SmartVector</a>&lt;<b>address</b>&gt;</code>
-</dt>
-<dd>
- Pack token addresses already minted and available for transfer
-</dd>
-<dt>
-<code>packs_reserved: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/table_with_length.md#0x1_table_with_length_TableWithLength">table_with_length::TableWithLength</a>&lt;<b>address</b>, bool&gt;</code>
-</dt>
-<dd>
- Pack token addresses reserved for creator (not available for sale) - persistent storage
-</dd>
-<dt>
-<code>collections_serials_numbers: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/ordered_map.md#0x1_ordered_map_OrderedMap">ordered_map::OrderedMap</a>&lt;<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>, <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;u32&gt;&gt;</code>
-</dt>
-<dd>
- Map of collection names to their serial numbers
-</dd>
-</dl>
 
-</details>
-
-<a id="ufc_strike_packs_PackStore"></a>
-
-## Resource `PackStore`
-
-Global storage for managing all packs created by a creator.
-
-<pre><code><b>struct</b> <a href="packs.md#ufc_strike_packs_PackStore">PackStore</a> <b>has</b> key
-</code></pre>
-
-<details>
-<summary>Fields</summary>
-
-<dl>
-<dt>
-<code>packs: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/table.md#0x1_table_Table">table::Table</a>&lt;<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>, <a href="packs.md#ufc_strike_packs_Pack">Pack</a>&gt;</code>
-</dt>
-<dd>
- Table mapping pack names to Pack resources
-</dd>
-</dl>
-
-</details>
-
-<a id="ufc_strike_packs_AdminTable"></a>
+<a id="0x123_packs_AdminTable"></a>
 
 ## Resource `AdminTable`
 
-Global table that stores all admin addresses.
+Global table that stores all admin addresses
 
-<pre><code><b>struct</b> <a href="packs.md#ufc_strike_packs_AdminTable">AdminTable</a> <b>has</b> key
+
+<pre><code><b>struct</b> <a href="packs.md#0x123_packs_AdminTable">AdminTable</a> <b>has</b> key
 </code></pre>
 
-<details>
-<summary>Fields</summary>
 
-<dl>
-<dt>
-<code>admins: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/table.md#0x1_table_Table">table::Table</a>&lt;<b>address</b>, bool&gt;</code>
-</dt>
-<dd>
- Table mapping admin addresses to their active status
-</dd>
-</dl>
 
-</details>
+<a id="0x123_packs_PackStore"></a>
 
-<a id="ufc_strike_packs_PreOrder"></a>
+## Resource `PackStore`
 
-## Resource `PreOrder`
+Global storage for managing all packs
 
-Pre-order information for tracking user pre-orders.
 
-<pre><code><b>struct</b> <a href="packs.md#ufc_strike_packs_PreOrder">PreOrder</a> <b>has</b> copy, drop, store
+<pre><code><b>struct</b> <a href="packs.md#0x123_packs_PackStore">PackStore</a> <b>has</b> key
 </code></pre>
 
-<details>
-<summary>Fields</summary>
 
-<dl>
-<dt>
-<code>address: <b>address</b></code>
-</dt>
-<dd>
- Address of the user who made the pre-order
-</dd>
-<dt>
-<code>amount: u64</code>
-</dt>
-<dd>
- Number of packs pre-ordered
-</dd>
-</dl>
 
-</details>
+<a id="0x123_packs_MomentDrawnEvent"></a>
 
-<a id="ufc_strike_packs_PackInfo"></a>
+## Struct `MomentDrawnEvent`
 
-## Resource `PackInfo`
+Event emitted when a moment is drawn from a pack
 
-Pack information structure for view functions.
 
-<pre><code><b>struct</b> <a href="packs.md#ufc_strike_packs_PackInfo">PackInfo</a> <b>has</b> copy, drop
+<pre><code>#[<a href="">event</a>]
+<b>struct</b> <a href="packs.md#0x123_packs_MomentDrawnEvent">MomentDrawnEvent</a> <b>has</b> <b>copy</b>, drop, store
 </code></pre>
 
-<details>
-<summary>Fields</summary>
 
-<dl>
-<dt>
-<code>description: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a></code>
-</dt>
-<dd>
- Description of the pack
-</dd>
-<dt>
-<code>uri: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a></code>
-</dt>
-<dd>
- URI for pack metadata
-</dd>
-<dt>
-<code>price: u64</code>
-</dt>
-<dd>
- Price in octas (smallest unit of APT)
-</dd>
-<dt>
-<code>supply: u64</code>
-</dt>
-<dd>
- Total supply of packs
-</dd>
-<dt>
-<code>max_purchase: u64</code>
-</dt>
-<dd>
- Maximum packs a user can purchase in one transaction
-</dd>
-<dt>
-<code>max_preorder: u64</code>
-</dt>
-<dd>
- Maximum packs a user can pre-order
-</dd>
-<dt>
-<code>moments_per_pack: u64</code>
-</dt>
-<dd>
- Number of moments each pack contains
-</dd>
-<dt>
-<code>released: bool</code>
-</dt>
-<dd>
- Whether the pack has been released (also indicates if sales are open)
-</dd>
-<dt>
-<code>total_preorders: u64</code>
-</dt>
-<dd>
- Total amount of pre-orders across all users
-</dd>
-<dt>
-<code>reserved_packs: u64</code>
-</dt>
-<dd>
- Packs reserved for creator (not available for sale)
-</dd>
-<dt>
-<code>preorder_enabled: bool</code>
-</dt>
-<dd>
- Whether preorders are currently enabled
-</dd>
-</dl>
 
-</details>
+<a id="0x123_packs_PacksRemovedFromSaleEvent"></a>
 
-<a id="@Events_0"></a>
+## Struct `PacksRemovedFromSaleEvent`
 
-## Events
+Event emitted when packs are removed from sale
 
-<a id="ufc_strike_packs_MomentDrawnEvent"></a>
 
-### Event `MomentDrawnEvent`
-
-Event for when a moment is drawn from a pack.
-
-<pre><code><b>struct</b> <a href="packs.md#ufc_strike_packs_MomentDrawnEvent">MomentDrawnEvent</a> <b>has</b> copy, drop, store
+<pre><code>#[<a href="">event</a>]
+<b>struct</b> <a href="packs.md#0x123_packs_PacksRemovedFromSaleEvent">PacksRemovedFromSaleEvent</a> <b>has</b> <b>copy</b>, drop, store
 </code></pre>
 
-<details>
-<summary>Fields</summary>
 
-<dl>
-<dt>
-<code>collection_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a></code>
-</dt>
-<dd>
- Name of the collection from which the moment was drawn
-</dd>
-<dt>
-<code>serial_number: u32</code>
-</dt>
-<dd>
- Serial number of the drawn moment
-</dd>
-</dl>
-
-</details>
-
-<a id="ufc_strike_packs_PacksRemovedFromSaleEvent"></a>
-
-### Event `PacksRemovedFromSaleEvent`
-
-Event for when packs are removed from sale.
-
-<pre><code><b>struct</b> <a href="packs.md#ufc_strike_packs_PacksRemovedFromSaleEvent">PacksRemovedFromSaleEvent</a> <b>has</b> copy, drop, store
-</code></pre>
-
-<details>
-<summary>Fields</summary>
-
-<dl>
-<dt>
-<code>pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a></code>
-</dt>
-<dd>
- Name of the pack from which packs were removed
-</dd>
-<dt>
-<code>amount: u64</code>
-</dt>
-<dd>
- Number of packs removed from sale
-</dd>
-<dt>
-<code>token_addresses: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;<b>address</b>&gt;</code>
-</dt>
-<dd>
- Addresses of the removed pack tokens
-</dd>
-</dl>
-
-</details>
 
 <a id="@Constants_0"></a>
 
 ## Constants
 
-<a id="ufc_strike_packs_E_NOT_AUTHORIZED"></a>
 
-The caller is not authorized to perform this action
+<a id="0x123_packs_E_COLLECTION_NOT_FOUND"></a>
 
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_NOT_AUTHORIZED">E_NOT_AUTHORIZED</a>: u64 = 1;
+Error when collection is not found
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_COLLECTION_NOT_FOUND">E_COLLECTION_NOT_FOUND</a>: u64 = 402;
 </code></pre>
 
-<a id="ufc_strike_packs_E_PACK_ALREADY_OPENED"></a>
 
-The pack has already been opened
 
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PACK_ALREADY_OPENED">E_PACK_ALREADY_OPENED</a>: u64 = 2;
+<a id="0x123_packs_E_LENGTH_MISMATCH"></a>
+
+Error when vector lengths do not match
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_LENGTH_MISMATCH">E_LENGTH_MISMATCH</a>: u64 = 207;
 </code></pre>
 
-<a id="ufc_strike_packs_E_NO_PACKS_AVAILABLE"></a>
 
-No packs are available for purchase
 
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_NO_PACKS_AVAILABLE">E_NO_PACKS_AVAILABLE</a>: u64 = 3;
+<a id="0x123_packs_E_NO_COLLECTIONS_AVAILABLE"></a>
+
+Error when no collections are available in a slot
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_NO_COLLECTIONS_AVAILABLE">E_NO_COLLECTIONS_AVAILABLE</a>: u64 = 501;
 </code></pre>
 
-<a id="ufc_strike_packs_E_PREORDER_EXCEEDS_LIMIT"></a>
 
-Pre-order amount exceeds the maximum allowed limit
 
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PREORDER_EXCEEDS_LIMIT">E_PREORDER_EXCEEDS_LIMIT</a>: u64 = 4;
+<a id="0x123_packs_E_NO_MOMENTS_AVAILABLE"></a>
+
+Error when no moments are available for a collection
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_NO_MOMENTS_AVAILABLE">E_NO_MOMENTS_AVAILABLE</a>: u64 = 502;
 </code></pre>
 
-<a id="ufc_strike_packs_E_NOT_RELEASED"></a>
 
-The pack sale is not currently open
 
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_NOT_RELEASED">E_NOT_RELEASED</a>: u64 = 5;
+<a id="0x123_packs_E_SLOT_NOT_FOUND"></a>
+
+Error when slot is not found
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_SLOT_NOT_FOUND">E_SLOT_NOT_FOUND</a>: u64 = 403;
 </code></pre>
 
-<a id="ufc_strike_packs_E_PACK_ALREADY_EXISTS"></a>
 
-A pack with this name already exists
 
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PACK_ALREADY_EXISTS">E_PACK_ALREADY_EXISTS</a>: u64 = 6;
-</code></pre>
-
-<a id="ufc_strike_packs_E_PACK_ALREADY_RELEASED"></a>
-
-The pack has already been released
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PACK_ALREADY_RELEASED">E_PACK_ALREADY_RELEASED</a>: u64 = 7;
-</code></pre>
-
-<a id="ufc_strike_packs_E_PREORDER_EXCEEDS_SUPPLY"></a>
-
-Total pre-orders exceed the available supply
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PREORDER_EXCEEDS_SUPPLY">E_PREORDER_EXCEEDS_SUPPLY</a>: u64 = 8;
-</code></pre>
-
-<a id="ufc_strike_packs_E_PURCHASE_EXCEEDS_LIMIT"></a>
-
-Purchase amount exceeds the maximum allowed limit
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PURCHASE_EXCEEDS_LIMIT">E_PURCHASE_EXCEEDS_LIMIT</a>: u64 = 9;
-</code></pre>
-
-<a id="ufc_strike_packs_E_ALREADY_PREORDERED"></a>
-
-User has already made a pre-order for this pack
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_ALREADY_PREORDERED">E_ALREADY_PREORDERED</a>: u64 = 10;
-</code></pre>
-
-<a id="ufc_strike_packs_E_RESERVE_EXCEEDS_SUPPLY"></a>
-
-Reserved packs exceed the total supply
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_RESERVE_EXCEEDS_SUPPLY">E_RESERVE_EXCEEDS_SUPPLY</a>: u64 = 11;
-</code></pre>
-
-<a id="ufc_strike_packs_E_INVALID_SLOTS_COUNT"></a>
-
-Invalid number of slots in the distribution
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_INVALID_SLOTS_COUNT">E_INVALID_SLOTS_COUNT</a>: u64 = 12;
-</code></pre>
-
-<a id="ufc_strike_packs_E_INVALID_MOMENTS_COUNT"></a>
-
-Invalid number of moments in the distribution
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_INVALID_MOMENTS_COUNT">E_INVALID_MOMENTS_COUNT</a>: u64 = 13;
-</code></pre>
-
-<a id="ufc_strike_packs_E_COLLECTION_DOES_NOT_EXIST"></a>
-
-The specified collection does not exist
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_COLLECTION_DOES_NOT_EXIST">E_COLLECTION_DOES_NOT_EXIST</a>: u64 = 14;
-</code></pre>
-
-<a id="ufc_strike_packs_E_NOT_ADMIN"></a>
-
-The caller is not an admin
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_NOT_ADMIN">E_NOT_ADMIN</a>: u64 = 15;
-</code></pre>
-
-<a id="ufc_strike_packs_E_ADMIN_ALREADY_EXISTS"></a>
-
-Admin already exists
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_ADMIN_ALREADY_EXISTS">E_ADMIN_ALREADY_EXISTS</a>: u64 = 16;
-</code></pre>
-
-<a id="ufc_strike_packs_E_ADMIN_NOT_FOUND"></a>
-
-Admin not found
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_ADMIN_NOT_FOUND">E_ADMIN_NOT_FOUND</a>: u64 = 17;
-</code></pre>
-
-<a id="ufc_strike_packs_E_NOT_OWNER"></a>
-
-The caller is not the owner
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_NOT_OWNER">E_NOT_OWNER</a>: u64 = 18;
-</code></pre>
-
-<a id="ufc_strike_packs_E_ADMIN_CANNOT_REMOVE_OWNER"></a>
-
-Admin cannot remove the owner
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_ADMIN_CANNOT_REMOVE_OWNER">E_ADMIN_CANNOT_REMOVE_OWNER</a>: u64 = 19;
-</code></pre>
-
-<a id="ufc_strike_packs_E_PACK_NOT_FOUND"></a>
-
-The specified pack was not found
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PACK_NOT_FOUND">E_PACK_NOT_FOUND</a>: u64 = 20;
-</code></pre>
-
-<a id="ufc_strike_packs_E_INVALID_AMOUNT"></a>
-
-Invalid amount provided
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_INVALID_AMOUNT">E_INVALID_AMOUNT</a>: u64 = 21;
-</code></pre>
-
-<a id="ufc_strike_packs_E_PACK_TOKEN_NOT_FOUND"></a>
-
-Pack token not found
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PACK_TOKEN_NOT_FOUND">E_PACK_TOKEN_NOT_FOUND</a>: u64 = 22;
-</code></pre>
-
-<a id="ufc_strike_packs_E_INVALID_SLOT_INDEX"></a>
-
-Invalid slot index
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_INVALID_SLOT_INDEX">E_INVALID_SLOT_INDEX</a>: u64 = 23;
-</code></pre>
-
-<a id="ufc_strike_packs_E_BATCH_SIZE_EXCEEDS_REMAINING_TO_MINT"></a>
-
-Batch size exceeds remaining packs to mint
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_BATCH_SIZE_EXCEEDS_REMAINING_TO_MINT">E_BATCH_SIZE_EXCEEDS_REMAINING_TO_MINT</a>: u64 = 24;
-</code></pre>
-
-<a id="ufc_strike_packs_E_PREORDER_NOT_ENABLED"></a>
-
-Preorders are not enabled
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PREORDER_NOT_ENABLED">E_PREORDER_NOT_ENABLED</a>: u64 = 25;
-</code></pre>
-
-<a id="ufc_strike_packs_E_PREORDER_SHOULD_BE_DISABLED"></a>
-
-Preorders should be disabled before release
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_PREORDER_SHOULD_BE_DISABLED">E_PREORDER_SHOULD_BE_DISABLED</a>: u64 = 26;
-</code></pre>
-
-<a id="ufc_strike_packs_E_NO_COLLECTIONS_AVAILABLE"></a>
-
-No collections are available
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_NO_COLLECTIONS_AVAILABLE">E_NO_COLLECTIONS_AVAILABLE</a>: u64 = 27;
-</code></pre>
-
-<a id="ufc_strike_packs_E_INVALID_RESERVED_PACKS_COUNT"></a>
-
-Invalid reserved packs count
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_INVALID_RESERVED_PACKS_COUNT">E_INVALID_RESERVED_PACKS_COUNT</a>: u64 = 28;
-</code></pre>
-
-<a id="ufc_strike_packs_E_INVALID_PACKS_FOR_SALE_COUNT"></a>
-
-Invalid packs for sale count
-
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_E_INVALID_PACKS_FOR_SALE_COUNT">E_INVALID_PACKS_FOR_SALE_COUNT</a>: u64 = 29;
-</code></pre>
-
-<a id="ufc_strike_packs_BURNER_ADDRESS"></a>
+<a id="0x123_packs_BURNER_ADDRESS"></a>
 
 Burner address where tokens are sent to be "burned"
 
-<pre><code><b>const</b> <a href="packs.md#ufc_strike_packs_BURNER_ADDRESS">BURNER_ADDRESS</a>: <b>address</b> = @0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_BURNER_ADDRESS">BURNER_ADDRESS</a>: <b>address</b> = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
 </code></pre>
 
-<a id="ufc_strike_packs_init_module"></a>
 
-## Function `init_module`
 
-Initializes the Packs module for an object.
+<a id="0x123_packs_E_ADMIN_ALREADY_EXISTS"></a>
 
-<pre><code><b>fun</b> <a href="packs.md#ufc_strike_packs_init_module">init_module</a>(object: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>)
+Error when admin already exists
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_ADMIN_ALREADY_EXISTS">E_ADMIN_ALREADY_EXISTS</a>: u64 = 102;
 </code></pre>
 
-<a id="ufc_strike_packs_add_admin"></a>
+
+
+<a id="0x123_packs_E_ADMIN_CANNOT_REMOVE_OWNER"></a>
+
+Error when attempting to remove the owner as admin
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_ADMIN_CANNOT_REMOVE_OWNER">E_ADMIN_CANNOT_REMOVE_OWNER</a>: u64 = 103;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_ADMIN_NOT_FOUND"></a>
+
+Error when admin is not found
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_ADMIN_NOT_FOUND">E_ADMIN_NOT_FOUND</a>: u64 = 404;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_ALREADY_PREORDERED"></a>
+
+Error when user has already placed a preorder
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_ALREADY_PREORDERED">E_ALREADY_PREORDERED</a>: u64 = 303;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_INVALID_AMOUNT"></a>
+
+Error when amount is invalid (zero or negative)
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_INVALID_AMOUNT">E_INVALID_AMOUNT</a>: u64 = 200;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_INVALID_MOMENTS_COUNT"></a>
+
+Error when moments count is invalid for the pack configuration
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_INVALID_MOMENTS_COUNT">E_INVALID_MOMENTS_COUNT</a>: u64 = 202;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_INVALID_MOMENTS_DISTRIBUTION_QUANTITY"></a>
+
+Error when moments distribution quantity is invalid
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_INVALID_MOMENTS_DISTRIBUTION_QUANTITY">E_INVALID_MOMENTS_DISTRIBUTION_QUANTITY</a>: u64 = 206;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_INVALID_PACKS_FOR_SALE_COUNT"></a>
+
+Error when packs for sale count is invalid
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_INVALID_PACKS_FOR_SALE_COUNT">E_INVALID_PACKS_FOR_SALE_COUNT</a>: u64 = 205;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_INVALID_RESERVED_PACKS_COUNT"></a>
+
+Error when reserved packs count is invalid
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_INVALID_RESERVED_PACKS_COUNT">E_INVALID_RESERVED_PACKS_COUNT</a>: u64 = 204;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_INVALID_SLOTS_COUNT"></a>
+
+Error when slots count is invalid for the pack configuration
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_INVALID_SLOTS_COUNT">E_INVALID_SLOTS_COUNT</a>: u64 = 201;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_INVALID_SLOT_INDEX"></a>
+
+Error when slot index is invalid
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_INVALID_SLOT_INDEX">E_INVALID_SLOT_INDEX</a>: u64 = 203;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_NOT_ADMIN"></a>
+
+Error when user is not an admin
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_NOT_ADMIN">E_NOT_ADMIN</a>: u64 = 101;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_NOT_AUTHORIZED"></a>
+
+Error when user is not authorized to perform the action
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_NOT_AUTHORIZED">E_NOT_AUTHORIZED</a>: u64 = 100;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_NOT_RELEASED"></a>
+
+Error when pack is not yet released for sale
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_NOT_RELEASED">E_NOT_RELEASED</a>: u64 = 304;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_NO_PACKS_AVAILABLE"></a>
+
+Error when no packs are available for the requested action
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_NO_PACKS_AVAILABLE">E_NO_PACKS_AVAILABLE</a>: u64 = 500;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PACK_ALREADY_EXISTS"></a>
+
+Error when attempting to create a pack that already exists
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PACK_ALREADY_EXISTS">E_PACK_ALREADY_EXISTS</a>: u64 = 301;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PACK_ALREADY_OPENED"></a>
+
+Error when pack has already been opened
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PACK_ALREADY_OPENED">E_PACK_ALREADY_OPENED</a>: u64 = 300;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PACK_ALREADY_RELEASED"></a>
+
+Error when pack has already been released
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PACK_ALREADY_RELEASED">E_PACK_ALREADY_RELEASED</a>: u64 = 302;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PACK_NOT_FOUND"></a>
+
+Error when pack is not found
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PACK_NOT_FOUND">E_PACK_NOT_FOUND</a>: u64 = 400;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PACK_TOKEN_NOT_FOUND"></a>
+
+Error when pack token is not found
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PACK_TOKEN_NOT_FOUND">E_PACK_TOKEN_NOT_FOUND</a>: u64 = 401;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PREORDER_EXCEEDS_LIMIT"></a>
+
+Error when preorder amount exceeds the maximum allowed limit
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PREORDER_EXCEEDS_LIMIT">E_PREORDER_EXCEEDS_LIMIT</a>: u64 = 503;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PREORDER_EXCEEDS_SUPPLY"></a>
+
+Error when preorder amount exceeds available supply
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PREORDER_EXCEEDS_SUPPLY">E_PREORDER_EXCEEDS_SUPPLY</a>: u64 = 505;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PREORDER_NOT_ENABLED"></a>
+
+Error when preorders are not enabled
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PREORDER_NOT_ENABLED">E_PREORDER_NOT_ENABLED</a>: u64 = 305;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PREORDER_SHOULD_BE_DISABLED"></a>
+
+Error when preorders should be disabled before release
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PREORDER_SHOULD_BE_DISABLED">E_PREORDER_SHOULD_BE_DISABLED</a>: u64 = 306;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_PURCHASE_EXCEEDS_LIMIT"></a>
+
+Error when purchase amount exceeds the maximum allowed limit
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_PURCHASE_EXCEEDS_LIMIT">E_PURCHASE_EXCEEDS_LIMIT</a>: u64 = 504;
+</code></pre>
+
+
+
+<a id="0x123_packs_E_RESERVE_EXCEEDS_SUPPLY"></a>
+
+Error when reserved packs exceed total supply
+
+
+<pre><code><b>const</b> <a href="packs.md#0x123_packs_E_RESERVE_EXCEEDS_SUPPLY">E_RESERVE_EXCEEDS_SUPPLY</a>: u64 = 506;
+</code></pre>
+
+
+
+<a id="0x123_packs_add_admin"></a>
 
 ## Function `add_admin`
 
-Add a new admin (only existing admins can add new admins).
+Add a new admin to the system
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_add_admin">add_admin</a>(admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>, new_admin_addr: <b>address</b>)
+Only existing admins can add new admins. The new admin address
+must not already exist in the admin table.
+
+
+<a id="@Arguments_1"></a>
+
+### Arguments
+
+* <code>admin</code> - The signer of an existing admin
+* <code>new_admin_addr</code> - Address of the new admin to add
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_add_admin">add_admin</a>(admin: &<a href="">signer</a>, new_admin_addr: <b>address</b>)
 </code></pre>
 
-<a id="ufc_strike_packs_remove_admin"></a>
+
+
+<a id="0x123_packs_remove_admin"></a>
 
 ## Function `remove_admin`
 
-Remove an admin (only existing admins can remove admins).
+Remove an admin from the system
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_remove_admin">remove_admin</a>(admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>, admin_to_remove: <b>address</b>)
+Only existing admins can remove admins. The owner cannot be removed
+as an admin.
+
+
+<a id="@Arguments_2"></a>
+
+### Arguments
+
+* <code>admin</code> - The signer of an existing admin
+* <code>admin_to_remove</code> - Address of the admin to remove
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_remove_admin">remove_admin</a>(admin: &<a href="">signer</a>, admin_to_remove: <b>address</b>)
 </code></pre>
 
-<a id="ufc_strike_packs_create_pack"></a>
+
+
+<a id="0x123_packs_create_pack"></a>
 
 ## Function `create_pack`
 
-Creates a simple pack with its own distribution.
+Creates a new pack with its own distribution
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_create_pack">create_pack</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    description: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    uri: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    price: u64,
-    supply: u64,
-    max_purchase: u64,
-    max_preorder: u64,
-    moments_per_pack: u64,
-    reserved_packs: u64,
-    mutable_description: bool,
-    mutable_royalty: bool,
-    mutable_uri: bool,
-    mutable_token_description: bool,
-    mutable_token_name: bool,
-    mutable_token_properties: bool,
-    mutable_token_uri: bool,
-    tokens_burnable_by_creator: bool,
-    tokens_freezable_by_creator: bool,
-    royalty_numerator: u64,
-    royalty_denominator: u64
-)
+This function creates a new pack with all necessary configuration
+including distribution setup, pricing, and collection parameters.
+Only admins can create packs.
+
+
+<a id="@Arguments_3"></a>
+
+### Arguments
+
+* <code>creator</code> - The signer of an admin creating the pack
+* <code>pack_name</code> - Unique name for the pack
+* <code>description</code> - Description of the pack
+* <code>uri</code> - URI for pack metadata
+* <code>price</code> - Price in octas (smallest unit of APT)
+* <code>supply</code> - Total supply of packs
+* <code>max_purchase</code> - Maximum packs a user can purchase
+* <code>max_preorder</code> - Maximum packs a user can pre-order
+* <code>moments_per_pack</code> - Number of moments per pack
+* <code>reserved_packs</code> - Number of packs reserved for creator
+* <code>mutable_description</code> - Whether collection description is mutable
+* <code>mutable_royalty</code> - Whether collection royalty is mutable
+* <code>mutable_uri</code> - Whether collection URI is mutable
+* <code>mutable_token_description</code> - Whether token description is mutable
+* <code>mutable_token_name</code> - Whether token name is mutable
+* <code>mutable_token_properties</code> - Whether token properties are mutable
+* <code>mutable_token_uri</code> - Whether token URI is mutable
+* <code>tokens_burnable_by_creator</code> - Whether tokens can be burned by creator
+* <code>tokens_freezable_by_creator</code> - Whether tokens can be frozen by creator
+* <code>royalty_numerator</code> - Royalty numerator for the collection
+* <code>royalty_denominator</code> - Royalty denominator for the collection
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_create_pack">create_pack</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, description: <a href="_String">string::String</a>, uri: <a href="_String">string::String</a>, price: u64, supply: u64, max_purchase: u64, max_preorder: u64, moments_per_pack: u64, reserved_packs: u64, mutable_description: bool, mutable_royalty: bool, mutable_uri: bool, mutable_token_description: bool, mutable_token_name: bool, mutable_token_properties: bool, mutable_token_uri: bool, tokens_burnable_by_creator: bool, tokens_freezable_by_creator: bool, royalty_numerator: u64, royalty_denominator: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_add_collections_to_distribution"></a>
+
+
+<a id="0x123_packs_add_collections_to_distribution"></a>
 
 ## Function `add_collections_to_distribution`
 
-Add collections to a pack's distribution (global or reserved).
+Add collections to a pack's distribution (global or reserved)
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_add_collections_to_distribution">add_collections_to_distribution</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    slot: u64,
-    collection_names: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>&gt;,
-    quantities: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;u64&gt;,
-    global_distribution: bool
-)
+This function allows admins to add collections to specific slots
+in either the global distribution (for packs for sale) or the
+reserved distribution (for reserved packs).
+
+
+<a id="@Arguments_4"></a>
+
+### Arguments
+
+* <code>creator</code> - The signer of an admin
+* <code>pack_name</code> - Name of the pack to modify
+* <code>slot</code> - Slot index to add collections to
+* <code>collection_names</code> - Vector of collection names to add
+* <code>quantities</code> - Vector of quantities for each collection
+* <code>global_distribution</code> - Whether to use global or reserved distribution
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_add_collections_to_distribution">add_collections_to_distribution</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, slot: u64, collection_names: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, quantities: <a href="">vector</a>&lt;u64&gt;, global_distribution: bool)
 </code></pre>
 
-<a id="ufc_strike_packs_add_serial_numbers"></a>
+
+
+<a id="0x123_packs_add_serial_numbers"></a>
 
 ## Function `add_serial_numbers`
 
-Add serial numbers to a collection in a pack.
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_add_serial_numbers">add_serial_numbers</a>(
-    admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    collection_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    serial_numbers: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;u32&gt;
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_add_serial_numbers">add_serial_numbers</a>(admin: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, collection_name: <a href="_String">string::String</a>, serial_numbers: <a href="">vector</a>&lt;u32&gt;)
 </code></pre>
 
-<a id="ufc_strike_packs_add_serial_numbers_with_range"></a>
+
+
+<a id="0x123_packs_add_serial_numbers_with_range"></a>
 
 ## Function `add_serial_numbers_with_range`
 
-Add serial numbers to a collection with range.
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_add_serial_numbers_with_range">add_serial_numbers_with_range</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    collection_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    start_serial: u32,
-    end_serial: u32
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_add_serial_numbers_with_range">add_serial_numbers_with_range</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, collection_name: <a href="_String">string::String</a>, start_serial: u32, end_serial: u32)
 </code></pre>
 
-<a id="ufc_strike_packs_mint_packs_batch"></a>
+
+
+<a id="0x123_packs_mint_packs_batch"></a>
 
 ## Function `mint_packs_batch`
 
-Mint packs in batches and store them for later transfer.
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_mint_packs_batch">mint_packs_batch</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    batch_size: u64,
-    global_distribution: bool
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_mint_packs_batch">mint_packs_batch</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, batch_size: u64, global_distribution: bool)
 </code></pre>
 
-<a id="ufc_strike_packs_set_max_purchase"></a>
+
+
+<a id="0x123_packs_set_max_purchase"></a>
 
 ## Function `set_max_purchase`
 
-Set max purchase limit for a specific pack.
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_set_max_purchase">set_max_purchase</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    new_max: u64
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_set_max_purchase">set_max_purchase</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, new_max: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_set_max_preorder"></a>
+
+
+<a id="0x123_packs_set_max_preorder"></a>
 
 ## Function `set_max_preorder`
 
-Set max preorder limit for a specific pack.
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_set_max_preorder">set_max_preorder</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    new_max: u64
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_set_max_preorder">set_max_preorder</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, new_max: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_set_pack_price"></a>
+
+
+<a id="0x123_packs_set_pack_price"></a>
 
 ## Function `set_pack_price`
 
-Set pack price (can be updated at any time).
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_set_pack_price">set_pack_price</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    new_price: u64
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_set_pack_price">set_pack_price</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, new_price: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_set_reserved_packs"></a>
+
+
+<a id="0x123_packs_set_reserved_packs"></a>
 
 ## Function `set_reserved_packs`
 
-Set reserved packs for a specific pack (only before release).
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_set_reserved_packs">set_reserved_packs</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    new_reserved: u64
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_set_reserved_packs">set_reserved_packs</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, new_reserved: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_pre_order"></a>
+
+
+<a id="0x123_packs_pre_order"></a>
 
 ## Function `pre_order`
 
-Allows users to pre-order packs before they are minted (whitelisted by creator signature).
+Allows users to pre-order packs before they are minted
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_pre_order">pre_order</a>(
-    user: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    amount: u64
-)
+Users can pre-order packs when preorders are enabled. Payment
+is transferred immediately to the creator.
+
+
+<a id="@Arguments_5"></a>
+
+### Arguments
+
+* <code>user</code> - The signer of the user placing the pre-order
+* <code>creator</code> - The signer of the creator (for payment)
+* <code>pack_name</code> - Name of the pack to pre-order
+* <code>amount</code> - Number of packs to pre-order
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_pre_order">pre_order</a>(user: &<a href="">signer</a>, creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, amount: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_assign_pre_order"></a>
+
+
+<a id="0x123_packs_assign_pre_order"></a>
 
 ## Function `assign_pre_order`
 
-Allows creator to pre-order packs for users without payment (free pre-orders).
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_assign_pre_order">assign_pre_order</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    user_addr: <b>address</b>,
-    amount: u64
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_assign_pre_order">assign_pre_order</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, user_addr: <b>address</b>, amount: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_set_preorder_enabled"></a>
+
+
+<a id="0x123_packs_set_preorder_enabled"></a>
 
 ## Function `set_preorder_enabled`
 
-Set preorder status (only admin can call this).
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_set_preorder_enabled">set_preorder_enabled</a>(
-    admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    enabled: bool
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_set_preorder_enabled">set_preorder_enabled</a>(admin: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, enabled: bool)
 </code></pre>
 
-<a id="ufc_strike_packs_preorder_release_batch"></a>
+
+
+<a id="0x123_packs_preorder_release_batch"></a>
 
 ## Function `preorder_release_batch`
 
-Release preorders by transferring already minted packs (only admin can call this, processes up to 100 users per transaction).
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_preorder_release_batch">preorder_release_batch</a>(
-    admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    batch_size: u64
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_preorder_release_batch">preorder_release_batch</a>(admin: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, batch_size: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_release_pack"></a>
+
+
+<a id="0x123_packs_release_pack"></a>
 
 ## Function `release_pack`
 
-Releases pack and transfers pre-orders using already minted packs, sets released=true.
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_release_pack">release_pack</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_release_pack">release_pack</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>)
 </code></pre>
 
-<a id="ufc_strike_packs_remove_pack_from_sale_by_address"></a>
+
+
+<a id="0x123_packs_remove_pack_from_sale_by_address"></a>
 
 ## Function `remove_pack_from_sale_by_address`
 
-Remove a specific pack token from packs_for_sale (admin only).
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_remove_pack_from_sale_by_address">remove_pack_from_sale_by_address</a>(
-    admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    token_address: <b>address</b>
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_remove_pack_from_sale_by_address">remove_pack_from_sale_by_address</a>(admin: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, token_address: <b>address</b>)
 </code></pre>
 
-<a id="ufc_strike_packs_remove_packs_from_sale_by_quantity"></a>
+
+
+<a id="0x123_packs_remove_packs_from_sale_by_quantity"></a>
 
 ## Function `remove_packs_from_sale_by_quantity`
 
-Remove a specific quantity of packs from sale and emit event with token addresses (admin only).
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_remove_packs_from_sale_by_quantity">remove_packs_from_sale_by_quantity</a>(
-    admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    amount: u64
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_remove_packs_from_sale_by_quantity">remove_packs_from_sale_by_quantity</a>(admin: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, amount: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_remove_serial_numbers_global"></a>
+
+
+<a id="0x123_packs_remove_serial_numbers_global"></a>
 
 ## Function `remove_serial_numbers_global`
 
-Remove specific serial numbers from collections and adjust pack consistency for global distribution (admin only).
 
-This function removes serial numbers from collections and burns the corresponding pack from sale
-to maintain system consistency. The amount of serials removed must match the slots count.
-The pack is transferred to the burner address and removed from packs_for_sale.
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_remove_serial_numbers_global">remove_serial_numbers_global</a>(
-    admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    collection_names: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>&gt;,
-    serial_numbers: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;u32&gt;
-)
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_remove_serial_numbers_global">remove_serial_numbers_global</a>(admin: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, collection_names: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, serial_numbers: <a href="">vector</a>&lt;u32&gt;)
 </code></pre>
 
-<a id="ufc_strike_packs_remove_serial_numbers_reserved"></a>
+
+
+<a id="0x123_packs_remove_serial_numbers_reserved"></a>
 
 ## Function `remove_serial_numbers_reserved`
 
-Remove specific serial numbers from collections and adjust pack consistency for reserved distribution (admin only).
 
-This function removes serial numbers from collections and burns the corresponding reserved pack
-to maintain system consistency. The amount of serials removed must match the slots count.
-The specified token_address is transferred to the burner address and removed from reserved packs.
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_remove_serial_numbers_reserved">remove_serial_numbers_reserved</a>(
-    admin: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    collection_names: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>&gt;,
-    serial_numbers: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;u32&gt;,
-    token_address: <b>address</b>
-)
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_remove_serial_numbers_reserved">remove_serial_numbers_reserved</a>(admin: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, collection_names: <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;, serial_numbers: <a href="">vector</a>&lt;u32&gt;, token_address: <b>address</b>)
 </code></pre>
 
-<a id="ufc_strike_packs_purchase"></a>
+
+
+<a id="0x123_packs_purchase"></a>
 
 ## Function `purchase`
 
-Purchase packs (when sale is open).
+Purchase packs when sale is open
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_purchase">purchase</a>(
-    user: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    amount: u64
-)
+Users can purchase packs when the pack has been released and
+sales are open. Payment is transferred to the creator.
+
+
+<a id="@Arguments_6"></a>
+
+### Arguments
+
+* <code>user</code> - The signer of the user purchasing packs
+* <code>creator</code> - The signer of the creator (for payment)
+* <code>pack_name</code> - Name of the pack to purchase
+* <code>amount</code> - Number of packs to purchase
+
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_purchase">purchase</a>(user: &<a href="">signer</a>, creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, amount: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_assign_purchase"></a>
+
+
+<a id="0x123_packs_assign_purchase"></a>
 
 ## Function `assign_purchase`
 
-Allows creator to purchase packs for users without payment (free purchases).
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#ufc_strike_packs_assign_purchase">assign_purchase</a>(
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    user_addr: <b>address</b>,
-    amount: u64
-)
+
+<pre><code><b>public</b> entry <b>fun</b> <a href="packs.md#0x123_packs_assign_purchase">assign_purchase</a>(creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, user_addr: <b>address</b>, amount: u64)
 </code></pre>
 
-<a id="ufc_strike_packs_open"></a>
+
+
+<a id="0x123_packs_open"></a>
 
 ## Function `open`
 
-Open a pack to reveal its contents.
+Open a pack to reveal its contents
 
-<pre><code><b>entry</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_open">open</a>(
-    user: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    creator: &<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/signer.md#0x1_signer">signer</a>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    pack_token_id: <b>address</b>
-)
+This function opens a pack and reveals the moments inside based on
+the pack's distribution. Uses randomness to select moments.
+
+
+<a id="@Arguments_7"></a>
+
+### Arguments
+
+* <code>user</code> - The signer of the user opening the pack
+* <code>creator</code> - The signer of the creator (for minting moments)
+* <code>pack_name</code> - Name of the pack to open
+* <code>pack_token_id</code> - Address of the pack token to open
+
+
+<pre><code>#[<a href="">randomness</a>]
+entry <b>fun</b> <a href="packs.md#0x123_packs_open">open</a>(user: &<a href="">signer</a>, creator: &<a href="">signer</a>, pack_name: <a href="_String">string::String</a>, pack_token_id: <b>address</b>)
 </code></pre>
 
-<a id="ufc_strike_packs_is_address_admin"></a>
+
+
+<a id="0x123_packs_is_address_admin"></a>
 
 ## Function `is_address_admin`
 
-Check if an address is admin.
+Check if an address is admin
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_is_address_admin">is_address_admin</a>(admin_addr: <b>address</b>): bool
+
+<a id="@Arguments_8"></a>
+
+### Arguments
+
+* <code>admin_addr</code> - Address to check
+
+
+<a id="@Returns_9"></a>
+
+### Returns
+
+* <code>bool</code> - True if the address is an admin
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_is_address_admin">is_address_admin</a>(admin_addr: <b>address</b>): bool
 </code></pre>
 
-<a id="ufc_strike_packs_is_address_owner"></a>
+
+
+<a id="0x123_packs_is_address_owner"></a>
 
 ## Function `is_address_owner`
 
-Check if an address is owner.
+Check if an address is owner
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_is_address_owner">is_address_owner</a>(owner_addr: <b>address</b>): bool
+
+<a id="@Arguments_10"></a>
+
+### Arguments
+
+* <code>owner_addr</code> - Address to check
+
+
+<a id="@Returns_11"></a>
+
+### Returns
+
+* <code>bool</code> - True if the address is the owner
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_is_address_owner">is_address_owner</a>(owner_addr: <b>address</b>): bool
 </code></pre>
 
-<a id="ufc_strike_packs_get_owner"></a>
+
+
+<a id="0x123_packs_get_owner"></a>
 
 ## Function `get_owner`
 
-Get the owner address of the contract.
+Get the owner address of the contract
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_owner">get_owner</a>(): <b>address</b>
+
+<a id="@Returns_12"></a>
+
+### Returns
+
+* <code><b>address</b></code> - The owner address of the contract
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_owner">get_owner</a>(): <b>address</b>
 </code></pre>
 
-<a id="ufc_strike_packs_get_packs_for_sale_available"></a>
+
+
+<a id="0x123_packs_get_packs_for_sale_available"></a>
 
 ## Function `get_packs_for_sale_available`
 
-Get number of packs available for sale.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_packs_for_sale_available">get_packs_for_sale_available</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_packs_for_sale_available">get_packs_for_sale_available</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_remaining_packs_to_mint"></a>
+
+
+<a id="0x123_packs_get_remaining_packs_to_mint"></a>
 
 ## Function `get_remaining_packs_to_mint`
 
-Get total packs that can still be minted (only if pack is not released).
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_remaining_packs_to_mint">get_remaining_packs_to_mint</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_remaining_packs_to_mint">get_remaining_packs_to_mint</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_pack_info"></a>
+
+
+<a id="0x123_packs_get_pack_info"></a>
 
 ## Function `get_pack_info`
 
-Get pack information.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_info">get_pack_info</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): <a href="packs.md#ufc_strike_packs_PackInfo">PackInfo</a>
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_info">get_pack_info</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): <a href="packs.md#0x123_packs_PackInfo">packs::PackInfo</a>
 </code></pre>
 
-<a id="ufc_strike_packs_get_pack_description"></a>
 
-## Function `get_pack_description`
 
-Get pack description.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_description">get_pack_description</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_uri"></a>
-
-## Function `get_pack_uri`
-
-Get pack URI.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_uri">get_pack_uri</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_price"></a>
-
-## Function `get_pack_price`
-
-Get pack price.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_price">get_pack_price</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_supply"></a>
-
-## Function `get_pack_supply`
-
-Get pack supply.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_supply">get_pack_supply</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_max_purchase"></a>
-
-## Function `get_pack_max_purchase`
-
-Get pack max purchase.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_max_purchase">get_pack_max_purchase</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_max_preorder"></a>
-
-## Function `get_pack_max_preorder`
-
-Get pack max preorder.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_max_preorder">get_pack_max_preorder</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_moments"></a>
-
-## Function `get_pack_moments`
-
-Get pack moments per pack.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_moments">get_pack_moments</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_total"></a>
-
-## Function `get_pack_total`
-
-Get pack total preorders.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_total">get_pack_total</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_reserved"></a>
-
-## Function `get_pack_reserved`
-
-Get pack reserved packs.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_reserved">get_pack_reserved</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
-</code></pre>
-
-<a id="ufc_strike_packs_get_pack_released"></a>
+<a id="0x123_packs_get_pack_released"></a>
 
 ## Function `get_pack_released`
 
-Get pack released status.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_pack_released">get_pack_released</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): bool
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_released">get_pack_released</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): bool
 </code></pre>
 
 
-<a id="ufc_strike_packs_get_preorder_count"></a>
 
-## Function `get_preorder_count`
+<a id="0x123_packs_get_pack_description"></a>
 
-Get total pre-orders for a pack (number of unique users with pre-orders).
+## Function `get_pack_description`
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_preorder_count">get_preorder_count</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_description">get_pack_description</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): <a href="_String">string::String</a>
 </code></pre>
 
 
-<a id="ufc_strike_packs_get_preorder_by_address"></a>
 
-## Function `get_preorder_by_address`
+<a id="0x123_packs_get_pack_uri"></a>
 
-Get pre-order amount for a specific address.
+## Function `get_pack_uri`
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_preorder_by_address">get_preorder_by_address</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    user_addr: <b>address</b>
-): u64
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_uri">get_pack_uri</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): <a href="_String">string::String</a>
 </code></pre>
 
-<a id="ufc_strike_packs_is_preorder_enabled"></a>
+
+
+<a id="0x123_packs_get_pack_price"></a>
+
+## Function `get_pack_price`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_price">get_pack_price</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_get_pack_supply"></a>
+
+## Function `get_pack_supply`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_supply">get_pack_supply</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_get_pack_max_purchase"></a>
+
+## Function `get_pack_max_purchase`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_max_purchase">get_pack_max_purchase</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_get_pack_max_preorder"></a>
+
+## Function `get_pack_max_preorder`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_max_preorder">get_pack_max_preorder</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_get_pack_moments"></a>
+
+## Function `get_pack_moments`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_moments">get_pack_moments</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_get_pack_total"></a>
+
+## Function `get_pack_total`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_total">get_pack_total</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_get_pack_reserved"></a>
+
+## Function `get_pack_reserved`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_reserved">get_pack_reserved</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_is_preorder_enabled"></a>
 
 ## Function `is_preorder_enabled`
 
-Check if preorders are enabled.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_is_preorder_enabled">is_preorder_enabled</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): bool
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_is_preorder_enabled">is_preorder_enabled</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): bool
 </code></pre>
 
 
-<a id="ufc_strike_packs_get_slots_count"></a>
+
+<a id="0x123_packs_get_pack_preorder_count"></a>
+
+## Function `get_pack_preorder_count`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_preorder_count">get_pack_preorder_count</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_get_pack_preorder_by_address"></a>
+
+## Function `get_pack_preorder_by_address`
+
+
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_pack_preorder_by_address">get_pack_preorder_by_address</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>, user_addr: <b>address</b>): u64
+</code></pre>
+
+
+
+<a id="0x123_packs_get_slots_count"></a>
 
 ## Function `get_slots_count`
 
-Get the number of slots in the pack distribution.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_slots_count">get_slots_count</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_slots_count">get_slots_count</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_slot_collections_names"></a>
+
+
+<a id="0x123_packs_get_slot_collections_names"></a>
 
 ## Function `get_slot_collections_names`
 
-Get collections names in a specific slot.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_slot_collections_names">get_slot_collections_names</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    slot: u64,
-    use_reserved_distribution: bool
-): <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;<a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>&gt;
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_slot_collections_names">get_slot_collections_names</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>, slot: u64, use_reserved_distribution: bool): <a href="">vector</a>&lt;<a href="_String">string::String</a>&gt;
 </code></pre>
 
-<a id="ufc_strike_packs_get_slot_collection_quantity_by_name"></a>
+
+
+<a id="0x123_packs_get_slot_collection_quantity_by_name"></a>
 
 ## Function `get_slot_collection_quantity_by_name`
 
-Get collection quantity in a specific collection.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_slot_collection_quantity_by_name">get_slot_collection_quantity_by_name</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    slot: u64,
-    collection_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    use_reserved_distribution: bool
-): u64
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_slot_collection_quantity_by_name">get_slot_collection_quantity_by_name</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>, slot: u64, collection_name: <a href="_String">string::String</a>, use_reserved_distribution: bool): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_slot_moments_count"></a>
+
+
+<a id="0x123_packs_get_slot_moments_count"></a>
 
 ## Function `get_slot_moments_count`
 
-Get moments available in a specific slot.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_slot_moments_count">get_slot_moments_count</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    slot: u64,
-    use_reserved_distribution: bool
-): u64
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_slot_moments_count">get_slot_moments_count</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>, slot: u64, use_reserved_distribution: bool): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_total_moments_count"></a>
+
+
+<a id="0x123_packs_get_total_moments_count"></a>
 
 ## Function `get_total_moments_count`
 
-Get total moments across all slots.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_total_moments_count">get_total_moments_count</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    use_reserved_distribution: bool
-): u64
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_total_moments_count">get_total_moments_count</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>, use_reserved_distribution: bool): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_collection_serial_numbers"></a>
+
+
+<a id="0x123_packs_get_collection_serial_numbers"></a>
 
 ## Function `get_collection_serial_numbers`
 
-Get serial numbers for a specific collection in a pack.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_collection_serial_numbers">get_collection_serial_numbers</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    collection_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;u32&gt;
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_collection_serial_numbers">get_collection_serial_numbers</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>, collection_name: <a href="_String">string::String</a>): <a href="">vector</a>&lt;u32&gt;
 </code></pre>
 
-<a id="ufc_strike_packs_get_collection_serial_numbers_count"></a>
+
+
+<a id="0x123_packs_get_collection_serial_numbers_count"></a>
 
 ## Function `get_collection_serial_numbers_count`
 
-Get count of serial numbers for a specific collection in a pack.
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_collection_serial_numbers_count">get_collection_serial_numbers_count</a>(
-    _creator_addr: <b>address</b>,
-    pack_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>,
-    collection_name: <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-): u64
+
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_get_collection_serial_numbers_count">get_collection_serial_numbers_count</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>, collection_name: <a href="_String">string::String</a>): u64
 </code></pre>
 
-<a id="ufc_strike_packs_get_event_collection_name"></a>
 
-## Function `get_event_collection_name`
 
-Get collection name from MomentDrawnEvent.
+<a id="0x123_packs_is_pack_reserved"></a>
 
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_event_collection_name">get_event_collection_name</a>(event: &<a href="packs.md#ufc_strike_packs_MomentDrawnEvent">MomentDrawnEvent</a>): <a href="../../aptos-framework/../aptos-stdlib/../move-stdlib/doc/string.md#0x1_string_String">string::String</a>
-</code></pre>
+## Function `is_pack_reserved`
 
-<a id="ufc_strike_packs_get_event_serial_number"></a>
 
-## Function `get_event_serial_number`
 
-Get serial number from MomentDrawnEvent.
-
-<pre><code><b>public</b> <b>fun</b> <a href="packs.md#ufc_strike_packs_get_event_serial_number">get_event_serial_number</a>(event: &<a href="packs.md#ufc_strike_packs_MomentDrawnEvent">MomentDrawnEvent</a>): u32
+<pre><code>#[view]
+<b>public</b> <b>fun</b> <a href="packs.md#0x123_packs_is_pack_reserved">is_pack_reserved</a>(_creator_addr: <b>address</b>, pack_name: <a href="_String">string::String</a>, pack_address: <b>address</b>): bool
 </code></pre>
